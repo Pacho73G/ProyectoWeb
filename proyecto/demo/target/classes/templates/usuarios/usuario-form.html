@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: shell(${titulo}, ~{::section})}">
+<section class="form-card">
+    <form class="form-grid" method="post" th:action="@{${accion}}" th:object="${form}">
+        <div class="field full">
+            <label>Nombre</label>
+            <input th:field="*{nombre}" required>
+        </div>
+        <div class="field">
+            <label>Email</label>
+            <input type="email" th:field="*{email}" required>
+        </div>
+        <div class="field">
+            <label>Password hash</label>
+            <input th:field="*{passwordHash}" required>
+        </div>
+        <div class="field">
+            <label>Rol</label>
+            <select th:field="*{rol}" th:disabled="${edicionRolBloqueada}" required>
+                <option value="">Selecciona un rol</option>
+                <option th:each="item : ${rolesUsuario}" th:value="${item}" th:text="${item}"></option>
+            </select>
+            <input th:if="${edicionRolBloqueada}" type="hidden" th:field="*{rol}">
+            <small class="muted" th:if="${edicionRolBloqueada}">El rol no cambia en edición para mantener consistente la herencia del modelo.</small>
+        </div>
+        <label class="checkbox">
+            <input type="checkbox" th:field="*{activo}">Activo
+        </label>
+        <div class="field full">
+            <label>Descriptor del rol</label>
+            <input th:field="*{descriptor}" placeholder="Materias, nivel o cargo según el rol" required>
+            <small class="muted">Docente: materias. Coordinador: nivel. Administrador: cargo.</small>
+        </div>
+        <div class="field">
+            <label>Carga actual</label>
+            <input type="number" th:field="*{cargaActual}" min="0" required>
+        </div>
+        <div class="field">
+            <label>Puntaje gamificación</label>
+            <input type="number" th:field="*{puntajeGamificacion}" min="0" required>
+        </div>
+        <div class="form-actions full">
+            <a class="secondary-button" th:href="@{/usuarios}">Cancelar</a>
+            <button class="primary-button">Guardar</button>
+        </div>
+    </form>
+</section>
+</html>

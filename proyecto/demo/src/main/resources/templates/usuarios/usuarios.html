@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: shell('Usuarios', ~{::section})}">
+<section class="panel">
+    <div class="table-toolbar">
+        <p class="muted">CRUD centralizado de usuarios del sistema.</p>
+        <a class="primary-button" th:href="@{/usuarios/nuevo}">Nuevo usuario</a>
+    </div>
+    <table>
+        <thead>
+        <tr><th>ID</th><th>Nombre</th><th>Email</th><th>Rol</th><th>Activo</th><th>Acciones</th></tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${usuarios}">
+            <td th:text="${item.id}"></td>
+            <td th:text="${item.nombre}"></td>
+            <td th:text="${item.email}"></td>
+            <td th:text="${item.rol}"></td>
+            <td th:text="${item.activo}"></td>
+            <td class="table-actions">
+                <a class="secondary-button" th:href="@{/usuarios/{id}/editar(id=${item.id})}">Editar</a>
+                <form method="post" th:action="@{/usuarios/{id}/eliminar(id=${item.id})}">
+                    <button class="danger-button">Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+</html>

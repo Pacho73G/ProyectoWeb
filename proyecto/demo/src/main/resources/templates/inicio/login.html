@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso | Vigilancia Docente</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="login-page">
+<section class="login-card">
+    <div class="hero">
+        <div class="hero-icon">
+            <svg viewBox="0 0 64 64" aria-hidden="true">
+                <path d="M14 30.5 32 18l18 12.5" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M20 28v20a2 2 0 0 0 2 2h20a2 2 0 0 0 2-2V28" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M28 50V38a4 4 0 0 1 8 0v12" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="32" cy="28" r="4" fill="none" stroke="currentColor" stroke-width="4"/>
+            </svg>
+        </div>
+        <h1>Sistema de Vigilancia Docente</h1>
+        <p>Colegio San José · Gestión de Supervisión Escolar</p>
+    </div>
+    <div class="role-selector">
+        <div class="section-heading">
+            <h2>Selecciona tu rol</h2>
+            <p>Elige cómo quieres acceder al sistema.</p>
+        </div>
+        <div class="role-grid">
+            <a class="role-card green" th:href="@{/seleccionar-rol(rol='coordinador')}">
+                <div class="role-icon">
+                    <svg viewBox="0 0 64 64" aria-hidden="true">
+                        <path d="M14 30.5 32 18l18 12.5" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M20 28v20a2 2 0 0 0 2 2h20a2 2 0 0 0 2-2V28" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M28 50V38a4 4 0 0 1 8 0v12" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="32" cy="28" r="4" fill="none" stroke="currentColor" stroke-width="4"/>
+                    </svg>
+                </div>
+                <span>Coordinador</span>
+                <small>Gestión completa del sistema</small>
+            </a>
+            <a class="role-card blue" th:href="@{/seleccionar-rol(rol='docente')}">
+                <div class="role-icon">
+                    <svg viewBox="0 0 64 64" aria-hidden="true">
+                        <path d="M12 26 32 16l20 10-20 10z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
+                        <path d="M20 32v8c0 3 6 6 12 6s12-3 12-6v-8" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M52 26v12" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <span>Docente</span>
+                <small>Check-in, recorridos y reportes</small>
+            </a>
+            <a class="role-card purple" th:href="@{/seleccionar-rol(rol='administrador')}">
+                <div class="role-icon">
+                    <svg viewBox="0 0 64 64" aria-hidden="true">
+                        <circle cx="32" cy="22" r="8" fill="none" stroke="currentColor" stroke-width="4"/>
+                        <path d="M20 48c0-7 5-12 12-12s12 5 12 12" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <span>Administrador</span>
+                <small>Usuarios, zonas y configuración</small>
+            </a>
+        </div>
+    </div>
+</section>
+</body>
+</html>
