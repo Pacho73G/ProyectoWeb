@@ -6,6 +6,8 @@ import java.time.LocalTime;
 
 import com.example.demo.model.EstadoTurno;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,12 +15,19 @@ import lombok.Setter;
 @Setter
 public class TurnoForm {
     private Long id;
+    @NotNull
     private Long docenteId;
+    @NotNull
     private Long zonaId;
+    @NotNull
     private LocalDate fecha;
+    @NotNull
     private LocalTime horaInicio;
+    @NotNull
     private LocalTime horaFin;
+    @NotBlank
     private String franja;
+    @NotNull
     private EstadoTurno estado;
     private LocalDateTime abiertoEn;
     private LocalDateTime cerradoEn;
