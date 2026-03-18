@@ -10,4 +10,8 @@ public interface CheckInRepository extends JpaRepository<CheckIn, Long> {
     @Override
     @EntityGraph(attributePaths = {"turno", "turno.zona", "docente", "zona"})
     java.util.List<CheckIn> findAll();
+
+    boolean existsByTurnoId(Long turnoId);
+
+    boolean existsByTurnoIdAndIdNot(Long turnoId, Long id);
 }

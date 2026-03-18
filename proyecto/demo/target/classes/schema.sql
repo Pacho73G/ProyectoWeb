@@ -1,22 +1,4 @@
-DROP TABLE IF EXISTS reconocimientos CASCADE;
-DROP TABLE IF EXISTS checkpoints_recorrido CASCADE;
-DROP TABLE IF EXISTS mapas_calor CASCADE;
-DROP TABLE IF EXISTS metricas_docente CASCADE;
-DROP TABLE IF EXISTS notificaciones CASCADE;
-DROP TABLE IF EXISTS registros_limpieza CASCADE;
-DROP TABLE IF EXISTS reasignaciones CASCADE;
-DROP TABLE IF EXISTS incidentes CASCADE;
-DROP TABLE IF EXISTS checkins CASCADE;
-DROP TABLE IF EXISTS recorridos CASCADE;
-DROP TABLE IF EXISTS turnos CASCADE;
-DROP TABLE IF EXISTS configuraciones_sistema CASCADE;
-DROP TABLE IF EXISTS administradores CASCADE;
-DROP TABLE IF EXISTS coordinadores CASCADE;
-DROP TABLE IF EXISTS docentes CASCADE;
-DROP TABLE IF EXISTS usuarios CASCADE;
-DROP TABLE IF EXISTS zonas CASCADE;
-
-CREATE TABLE usuarios (
+CREATE TABLE IF NOT EXISTS usuarios (
     id BIGSERIAL PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
@@ -26,7 +8,7 @@ CREATE TABLE usuarios (
     creado_en TIMESTAMP NOT NULL
 );
 
-CREATE TABLE docentes (
+CREATE TABLE IF NOT EXISTS docentes (
     id BIGINT PRIMARY KEY,
     materias VARCHAR(255) NOT NULL,
     carga_actual INTEGER NOT NULL DEFAULT 0,
@@ -34,19 +16,19 @@ CREATE TABLE docentes (
     CONSTRAINT fk_docentes_usuario FOREIGN KEY (id) REFERENCES usuarios(id) ON DELETE CASCADE
 );
 
-CREATE TABLE coordinadores (
+CREATE TABLE IF NOT EXISTS coordinadores (
     id BIGINT PRIMARY KEY,
     nivel VARCHAR(255) NOT NULL,
     CONSTRAINT fk_coordinadores_usuario FOREIGN KEY (id) REFERENCES usuarios(id) ON DELETE CASCADE
 );
 
-CREATE TABLE administradores (
+CREATE TABLE IF NOT EXISTS administradores (
     id BIGINT PRIMARY KEY,
     cargo VARCHAR(255) NOT NULL,
     CONSTRAINT fk_administradores_usuario FOREIGN KEY (id) REFERENCES usuarios(id) ON DELETE CASCADE
 );
 
-CREATE TABLE zonas (
+CREATE TABLE IF NOT EXISTS zonas (
     id BIGSERIAL PRIMARY KEY,
     nombre VARCHAR(255) NOT NULL UNIQUE,
     descripcion VARCHAR(255) NOT NULL,
@@ -55,7 +37,7 @@ CREATE TABLE zonas (
     activa BOOLEAN NOT NULL DEFAULT TRUE
 );
 
-CREATE TABLE configuraciones_sistema (
+CREATE TABLE IF NOT EXISTS configuraciones_sistema (
     id BIGSERIAL PRIMARY KEY,
     administrador_id BIGINT NOT NULL UNIQUE,
     minutos_alerta_ausencia INTEGER NOT NULL,
@@ -67,7 +49,7 @@ CREATE TABLE configuraciones_sistema (
     CONSTRAINT fk_configuraciones_administrador FOREIGN KEY (administrador_id) REFERENCES administradores(id) ON DELETE CASCADE
 );
 
-CREATE TABLE turnos (
+CREATE TABLE IF NOT EXISTS turnos (
     id BIGSERIAL PRIMARY KEY,
     docente_id BIGINT NOT NULL,
     zona_id BIGINT NOT NULL,
@@ -82,7 +64,7 @@ CREATE TABLE turnos (
     CONSTRAINT fk_turnos_zona FOREIGN KEY (zona_id) REFERENCES zonas(id) ON DELETE CASCADE
 );
 
-CREATE TABLE checkins (
+CREATE TABLE IF NOT EXISTS checkins (
     id BIGSERIAL PRIMARY KEY,
     turno_id BIGINT NOT NULL UNIQUE,
     docente_id BIGINT NOT NULL,
@@ -96,7 +78,7 @@ CREATE TABLE checkins (
     CONSTRAINT fk_checkins_zona FOREIGN KEY (zona_id) REFERENCES zonas(id) ON DELETE CASCADE
 );
 
-CREATE TABLE incidentes (
+CREATE TABLE IF NOT EXISTS incidentes (
     id BIGSERIAL PRIMARY KEY,
     turno_id BIGINT NOT NULL,
     docente_id BIGINT NOT NULL,
@@ -112,7 +94,7 @@ CREATE TABLE incidentes (
     CONSTRAINT fk_incidentes_zona FOREIGN KEY (zona_id) REFERENCES zonas(id) ON DELETE CASCADE
 );
 
-CREATE TABLE reasignaciones (
+CREATE TABLE IF NOT EXISTS reasignaciones (
     id BIGSERIAL PRIMARY KEY,
     turno_id BIGINT NOT NULL UNIQUE,
     docente_solicitante_id BIGINT NOT NULL,
@@ -127,7 +109,7 @@ CREATE TABLE reasignaciones (
     CONSTRAINT fk_reasignaciones_reemplazo FOREIGN KEY (docente_reemplazo_id) REFERENCES docentes(id) ON DELETE SET NULL
 );
 
-CREATE TABLE registros_limpieza (
+CREATE TABLE IF NOT EXISTS registros_limpieza (
     id BIGSERIAL PRIMARY KEY,
     turno_id BIGINT NOT NULL UNIQUE,
     escala INTEGER NOT NULL,
@@ -136,7 +118,7 @@ CREATE TABLE registros_limpieza (
     CONSTRAINT fk_registros_limpieza_turno FOREIGN KEY (turno_id) REFERENCES turnos(id) ON DELETE CASCADE
 );
 
-CREATE TABLE recorridos (
+CREATE TABLE IF NOT EXISTS recorridos (
     id BIGSERIAL PRIMARY KEY,
     docente_id BIGINT NOT NULL,
     turno_id BIGINT NOT NULL,
@@ -148,7 +130,7 @@ CREATE TABLE recorridos (
     CONSTRAINT fk_recorridos_turno FOREIGN KEY (turno_id) REFERENCES turnos(id) ON DELETE CASCADE
 );
 
-CREATE TABLE checkpoints_recorrido (
+CREATE TABLE IF NOT EXISTS checkpoints_recorrido (
     id BIGSERIAL PRIMARY KEY,
     zona_id BIGINT NOT NULL,
     recorrido_id BIGINT NOT NULL,
@@ -160,7 +142,7 @@ CREATE TABLE checkpoints_recorrido (
     CONSTRAINT fk_checkpoints_recorrido FOREIGN KEY (recorrido_id) REFERENCES recorridos(id) ON DELETE CASCADE
 );
 
-CREATE TABLE notificaciones (
+CREATE TABLE IF NOT EXISTS notificaciones (
     id BIGSERIAL PRIMARY KEY,
     turno_id BIGINT NOT NULL,
     tipo VARCHAR(64) NOT NULL,
@@ -171,7 +153,7 @@ CREATE TABLE notificaciones (
     CONSTRAINT fk_notificaciones_turno FOREIGN KEY (turno_id) REFERENCES turnos(id) ON DELETE CASCADE
 );
 
-CREATE TABLE metricas_docente (
+CREATE TABLE IF NOT EXISTS metricas_docente (
     id BIGSERIAL PRIMARY KEY,
     docente_id BIGINT NOT NULL,
     puntualidad INTEGER NOT NULL,
@@ -185,7 +167,7 @@ CREATE TABLE metricas_docente (
     CONSTRAINT fk_metricas_docente_docente FOREIGN KEY (docente_id) REFERENCES docentes(id) ON DELETE CASCADE
 );
 
-CREATE TABLE reconocimientos (
+CREATE TABLE IF NOT EXISTS reconocimientos (
     id BIGSERIAL PRIMARY KEY,
     metrica_docente_id BIGINT NOT NULL,
     titulo VARCHAR(255) NOT NULL,
@@ -196,7 +178,7 @@ CREATE TABLE reconocimientos (
     CONSTRAINT fk_reconocimientos_metrica FOREIGN KEY (metrica_docente_id) REFERENCES metricas_docente(id) ON DELETE CASCADE
 );
 
-CREATE TABLE mapas_calor (
+CREATE TABLE IF NOT EXISTS mapas_calor (
     id BIGSERIAL PRIMARY KEY,
     zona_id BIGINT NOT NULL,
     franja VARCHAR(255) NOT NULL,

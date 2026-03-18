@@ -10,4 +10,8 @@ public interface ConfiguracionSistemaRepository extends JpaRepository<Configurac
     @Override
     @EntityGraph(attributePaths = "administrador")
     java.util.List<ConfiguracionSistema> findAll();
+
+    boolean existsByAdministradorId(Long administradorId);
+
+    boolean existsByAdministradorIdAndIdNot(Long administradorId, Long id);
 }

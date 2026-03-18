@@ -561,6 +561,12 @@ thead {
     border-radius: 14px;
 }
 
+.alert.error {
+    background: #fee8ec;
+    color: #9d2339;
+    border: 1px solid rgba(220, 38, 38, 0.16);
+}
+
 .alert.success {
     background: #e4f6eb;
     color: #1c8c48;

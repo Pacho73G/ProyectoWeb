@@ -14,4 +14,8 @@ public interface RegistroLimpiezaRepository extends JpaRepository<RegistroLimpie
     java.util.List<RegistroLimpieza> findAll();
 
     Optional<RegistroLimpieza> findByTurnoId(Long turnoId);
+
+    boolean existsByTurnoId(Long turnoId);
+
+    boolean existsByTurnoIdAndIdNot(Long turnoId, Long id);
 }

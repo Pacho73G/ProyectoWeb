@@ -10,4 +10,8 @@ public interface ReasignacionRepository extends JpaRepository<Reasignacion, Long
     @Override
     @EntityGraph(attributePaths = {"turno", "docenteSolicitante", "docenteReemplazo"})
     java.util.List<Reasignacion> findAll();
+
+    boolean existsByTurnoId(Long turnoId);
+
+    boolean existsByTurnoIdAndIdNot(Long turnoId, Long id);
 }

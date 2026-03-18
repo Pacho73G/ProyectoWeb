@@ -39,6 +39,12 @@ public class ViewModelAdvice {
         return request.getRequestURI();
     }
 
+    @ModelAttribute("errorMessage")
+    public String errorMessage(HttpServletRequest request) {
+        String error = request.getParameter("error");
+        return error != null && !error.isBlank() ? error : null;
+    }
+
     @ModelAttribute("rolUi")
     public RolUi rolUi(@ModelAttribute("rolActivo") String rolActivo) {
         return switch (rolActivo) {

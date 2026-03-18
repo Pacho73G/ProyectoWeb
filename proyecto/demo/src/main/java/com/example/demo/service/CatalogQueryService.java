@@ -4,6 +4,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.example.demo.exception.RecursoNoEncontradoException;
+import com.example.demo.exception.RelacionInvalidaException;
 import com.example.demo.model.Administrador;
 import com.example.demo.model.CheckIn;
 import com.example.demo.model.CheckpointRecorrido;
@@ -63,40 +65,40 @@ public class CatalogQueryService {
     private final ReconocimientoRepository reconocimientoRepository;
 
     public List<Usuario> usuarios() { return usuarioRepository.findAll(); }
-    public Usuario usuario(Long id) { return usuarioRepository.findById(id).orElseThrow(); }
+    public Usuario usuario(Long id) { return usuarioRepository.findById(id).orElseThrow(() -> notFound("El usuario solicitado no existe.")); }
     public List<Docente> docentes() { return docenteRepository.findAll(); }
-    public Docente docente(Long id) { return docenteRepository.findById(id).orElseThrow(); }
+    public Docente docente(Long id) { return docenteRepository.findById(id).orElseThrow(() -> invalidRelation("El docente seleccionado no es válido.")); }
     public List<Coordinador> coordinadores() { return coordinadorRepository.findAll(); }
-    public Coordinador coordinador(Long id) { return coordinadorRepository.findById(id).orElseThrow(); }
+    public Coordinador coordinador(Long id) { return coordinadorRepository.findById(id).orElseThrow(() -> notFound("El coordinador solicitado no existe.")); }
     public List<Administrador> administradores() { return administradorRepository.findAll(); }
-    public Administrador administrador(Long id) { return administradorRepository.findById(id).orElseThrow(); }
+    public Administrador administrador(Long id) { return administradorRepository.findById(id).orElseThrow(() -> invalidRelation("El administrador seleccionado no es válido.")); }
     public List<ConfiguracionSistema> configuraciones() { return configuracionSistemaRepository.findAll(); }
-    public ConfiguracionSistema configuracion(Long id) { return configuracionSistemaRepository.findById(id).orElseThrow(); }
+    public ConfiguracionSistema configuracion(Long id) { return configuracionSistemaRepository.findById(id).orElseThrow(() -> notFound("La configuración solicitada no existe.")); }
     public List<Zona> zonas() { return zonaRepository.findAll(); }
-    public Zona zona(Long id) { return zonaRepository.findById(id).orElseThrow(); }
+    public Zona zona(Long id) { return zonaRepository.findById(id).orElseThrow(() -> invalidRelation("La zona seleccionada no es válida.")); }
     public List<Turno> turnos() { return turnoRepository.findAll(); }
-    public Turno turno(Long id) { return turnoRepository.findById(id).orElseThrow(); }
+    public Turno turno(Long id) { return turnoRepository.findById(id).orElseThrow(() -> invalidRelation("El turno seleccionado no es válido.")); }
     public List<CheckIn> checkIns() { return checkInRepository.findAll(); }
-    public CheckIn checkIn(Long id) { return checkInRepository.findById(id).orElseThrow(); }
+    public CheckIn checkIn(Long id) { return checkInRepository.findById(id).orElseThrow(() -> notFound("El check-in solicitado no existe.")); }
     public List<Incidente> incidentes() { return incidenteRepository.findAll(); }
-    public Incidente incidente(Long id) { return incidenteRepository.findById(id).orElseThrow(); }
+    public Incidente incidente(Long id) { return incidenteRepository.findById(id).orElseThrow(() -> notFound("El incidente solicitado no existe.")); }
     public List<Reasignacion> reasignaciones() { return reasignacionRepository.findAll(); }
-    public Reasignacion reasignacion(Long id) { return reasignacionRepository.findById(id).orElseThrow(); }
+    public Reasignacion reasignacion(Long id) { return reasignacionRepository.findById(id).orElseThrow(() -> notFound("La reasignación solicitada no existe.")); }
     public List<RegistroLimpieza> limpiezas() { return registroLimpiezaRepository.findAll(); }
-    public RegistroLimpieza limpieza(Long id) { return registroLimpiezaRepository.findById(id).orElseThrow(); }
+    public RegistroLimpieza limpieza(Long id) { return registroLimpiezaRepository.findById(id).orElseThrow(() -> notFound("El registro de limpieza solicitado no existe.")); }
     public RegistroLimpieza limpiezaPorTurno(Long turnoId) { return registroLimpiezaRepository.findByTurnoId(turnoId).orElse(null); }
     public List<Notificacion> notificaciones() { return notificacionRepository.findAll(); }
-    public Notificacion notificacion(Long id) { return notificacionRepository.findById(id).orElseThrow(); }
+    public Notificacion notificacion(Long id) { return notificacionRepository.findById(id).orElseThrow(() -> notFound("La notificación solicitada no existe.")); }
     public List<Recorrido> recorridos() { return recorridoRepository.findAll(); }
-    public Recorrido recorrido(Long id) { return recorridoRepository.findById(id).orElseThrow(); }
+    public Recorrido recorrido(Long id) { return recorridoRepository.findById(id).orElseThrow(() -> notFound("El recorrido solicitado no existe.")); }
     public List<CheckpointRecorrido> checkpoints() { return checkpointRecorridoRepository.findAll(); }
-    public CheckpointRecorrido checkpoint(Long id) { return checkpointRecorridoRepository.findById(id).orElseThrow(); }
+    public CheckpointRecorrido checkpoint(Long id) { return checkpointRecorridoRepository.findById(id).orElseThrow(() -> notFound("El checkpoint solicitado no existe.")); }
     public List<MapaCalor> mapasCalor() { return mapaCalorRepository.findAll(); }
-    public MapaCalor mapaCalor(Long id) { return mapaCalorRepository.findById(id).orElseThrow(); }
+    public MapaCalor mapaCalor(Long id) { return mapaCalorRepository.findById(id).orElseThrow(() -> notFound("El mapa de calor solicitado no existe.")); }
     public List<MetricaDocente> metricas() { return metricaDocenteRepository.findAll(); }
-    public MetricaDocente metrica(Long id) { return metricaDocenteRepository.findById(id).orElseThrow(); }
+    public MetricaDocente metrica(Long id) { return metricaDocenteRepository.findById(id).orElseThrow(() -> invalidRelation("La métrica seleccionada no es válida.")); }
     public List<Reconocimiento> reconocimientos() { return reconocimientoRepository.findAll(); }
-    public Reconocimiento reconocimiento(Long id) { return reconocimientoRepository.findById(id).orElseThrow(); }
+    public Reconocimiento reconocimiento(Long id) { return reconocimientoRepository.findById(id).orElseThrow(() -> notFound("El reconocimiento solicitado no existe.")); }
 
     public long totalDocentes() { return docenteRepository.count(); }
     public long totalTurnos() { return turnoRepository.count(); }
@@ -104,4 +106,12 @@ public class CatalogQueryService {
     public long totalReasignaciones() { return reasignacionRepository.count(); }
     public long totalRecorridos() { return recorridoRepository.count(); }
     public long totalReconocimientos() { return reconocimientoRepository.count(); }
+
+    private RecursoNoEncontradoException notFound(String message) {
+        return new RecursoNoEncontradoException(message);
+    }
+
+    private RelacionInvalidaException invalidRelation(String message) {
+        return new RelacionInvalidaException(message);
+    }
 }

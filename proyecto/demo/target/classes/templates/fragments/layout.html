@@ -74,6 +74,7 @@
         </div>
         <a class="ghost-button" th:href="@{/}">Volver al acceso</a>
     </div>
+    <div th:if="${errorMessage}" class="alert error" th:text="${errorMessage}"></div>
     <div th:if="${successMessage}" class="alert success" th:text="${successMessage}"></div>
     <div th:replace="${content}"></div>
 </main>
