@@ -21,6 +21,9 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "checkins")
+/**
+ * Evidencia de presencia del docente en el turno usando QR, PIN o NFC.
+ */
 public class CheckIn {
 
     @Id

@@ -10,6 +10,9 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "docentes")
+/**
+ * Perfil operativo que ejecuta turnos, check-ins, recorridos e incidentes.
+ */
 public class Docente extends Usuario {
 
     @Column(name = "materias", nullable = false)

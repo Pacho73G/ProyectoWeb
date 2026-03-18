@@ -481,6 +481,22 @@ a {
     padding: 22px;
 }
 
+.panel-intro {
+    display: grid;
+    gap: 6px;
+    margin-bottom: 18px;
+}
+
+.panel-intro h3 {
+    margin: 0;
+    font-size: 1.28rem;
+}
+
+.panel-intro p {
+    margin: 0;
+    color: var(--muted);
+}
+
 .panel-title-row,
 .table-toolbar {
     display: flex;
@@ -524,6 +540,7 @@ table {
     background: #fff;
     border-radius: 18px;
     overflow: hidden;
+    box-shadow: inset 0 0 0 1px rgba(217, 226, 236, 0.8);
 }
 
 th,
@@ -535,6 +552,34 @@ td {
 
 thead {
     background: #f5f9fd;
+}
+
+th {
+    font-size: 0.86rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #60748a;
+}
+
+tbody tr {
+    transition: background 140ms ease;
+}
+
+tbody tr:hover {
+    background: #fafcff;
+}
+
+.table-main {
+    display: grid;
+    gap: 4px;
+}
+
+.table-main strong {
+    color: var(--text);
+}
+
+.table-main small {
+    color: var(--muted);
 }
 
 .badge {
@@ -553,6 +598,16 @@ thead {
 .badge.success {
     background: #e4f6eb;
     color: #1c8c48;
+}
+
+.badge.danger {
+    background: #fee8ec;
+    color: #b4233b;
+}
+
+.badge.info {
+    background: #e8f2ff;
+    color: #2467c4;
 }
 
 .alert {

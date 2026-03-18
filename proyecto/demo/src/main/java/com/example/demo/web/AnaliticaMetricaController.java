@@ -24,6 +24,9 @@ import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping
+/**
+ * CRUD de analítica preventiva y gamificación institucional.
+ */
 public class AnaliticaMetricaController extends BaseController {
 
     private final AnaliticaManagementService analiticaManagementService;

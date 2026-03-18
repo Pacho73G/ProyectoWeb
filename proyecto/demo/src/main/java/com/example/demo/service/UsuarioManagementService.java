@@ -18,6 +18,9 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+/**
+ * Encapsula altas, cambios y bajas del módulo administrativo de usuarios y configuración.
+ */
 public class UsuarioManagementService {
 
     private final UsuarioRepository usuarioRepository;
@@ -77,6 +80,7 @@ public class UsuarioManagementService {
     }
 
     private void validateUsuario(Usuario entity) {
+        // El email se trata como identificador único visible en la operación administrativa.
         boolean exists = entity.getId() == null
                 ? usuarioRepository.existsByEmailIgnoreCase(entity.getEmail())
                 : usuarioRepository.existsByEmailIgnoreCaseAndIdNot(entity.getEmail(), entity.getId());

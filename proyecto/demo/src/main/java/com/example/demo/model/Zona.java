@@ -13,6 +13,9 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "zonas")
+/**
+ * Área física del colegio donde se ejecuta vigilancia y se asocian incidentes/checkpoints.
+ */
 public class Zona {
 
     @Id

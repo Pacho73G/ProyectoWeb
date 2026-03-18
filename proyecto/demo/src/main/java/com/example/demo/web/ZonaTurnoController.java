@@ -22,6 +22,9 @@ import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping
+/**
+ * CRUD de estructura operativa básica: zonas y turnos.
+ */
 public class ZonaTurnoController extends BaseController {
 
     private final OperacionManagementService operacionManagementService;

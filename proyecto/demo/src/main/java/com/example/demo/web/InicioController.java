@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import com.example.demo.service.CatalogQueryService;
 
 @Controller
+/**
+ * Controlador de entrada y vistas generales como dashboard y reportes.
+ */
 public class InicioController extends BaseController {
 
     public InicioController(CatalogQueryService catalogQueryService) {

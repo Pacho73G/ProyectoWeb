@@ -22,6 +22,9 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+/**
+ * Agrupa la lógica de escritura para la operación diaria: turnos, check-ins, incidentes y reasignaciones.
+ */
 public class OperacionManagementService {
 
     private final ZonaRepository zonaRepository;
@@ -103,6 +106,7 @@ public class OperacionManagementService {
     }
 
     private void validateCheckIn(CheckIn entity) {
+        // Un turno solo puede tener una evidencia principal de check-in.
         Long turnoId = entity.getTurno() != null ? entity.getTurno().getId() : null;
         if (turnoId == null) {
             return;
@@ -116,6 +120,7 @@ public class OperacionManagementService {
     }
 
     private void validateReasignacion(Reasignacion entity) {
+        // La solicitud de reasignación es única por turno para mantener trazabilidad clara.
         Long turnoId = entity.getTurno() != null ? entity.getTurno().getId() : null;
         if (turnoId == null) {
             return;

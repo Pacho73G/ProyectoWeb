@@ -18,6 +18,9 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "registros_limpieza")
+/**
+ * Cierre del turno con evaluación básica del estado de limpieza de la zona.
+ */
 public class RegistroLimpieza {
 
     @Id

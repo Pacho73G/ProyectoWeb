@@ -16,6 +16,9 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "metricas_docente")
+/**
+ * Consolidado de gamificación y desempeño docente por periodo.
+ */
 public class MetricaDocente {
 
     @Id

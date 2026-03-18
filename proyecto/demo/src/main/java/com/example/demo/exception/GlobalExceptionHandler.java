@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import jakarta.servlet.http.HttpServletRequest;
 
 @ControllerAdvice
+/**
+ * Maneja errores de negocio y de persistencia con mensajes amigables para la interfaz web.
+ */
 public class GlobalExceptionHandler {
 
     @ExceptionHandler({
@@ -62,6 +65,7 @@ public class GlobalExceptionHandler {
     }
 
     private String resolveIntegrityMessage(DataIntegrityViolationException ex) {
+        // Traduce errores técnicos de base de datos a mensajes comprensibles para el usuario.
         String message = ex.getMostSpecificCause() != null
                 ? ex.getMostSpecificCause().getMessage()
                 : ex.getMessage();

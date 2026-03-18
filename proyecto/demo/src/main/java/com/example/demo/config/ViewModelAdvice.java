@@ -13,6 +13,10 @@ import lombok.RequiredArgsConstructor;
 
 @ControllerAdvice
 @RequiredArgsConstructor
+/**
+ * Expone datos compartidos para todas las vistas Thymeleaf:
+ * estadísticas, rol activo, navegación y permisos visuales.
+ */
 public class ViewModelAdvice {
 
     private final SistemaService sistemaService;
@@ -47,6 +51,7 @@ public class ViewModelAdvice {
 
     @ModelAttribute("rolUi")
     public RolUi rolUi(@ModelAttribute("rolActivo") String rolActivo) {
+        // La navegación cambia por rol, pero sin autenticación formal en esta primera entrega.
         return switch (rolActivo) {
             case "docente" -> new RolUi(
                     "docente",
@@ -134,6 +139,7 @@ public class ViewModelAdvice {
         }
 
         public boolean allows(String resource, String action) {
+            // Esta matriz gobierna qué botones se muestran por rol en la interfaz.
             return switch (role) {
                 case "administrador" -> allowsAdministrador(resource, action);
                 case "docente" -> allowsDocente(resource, action);

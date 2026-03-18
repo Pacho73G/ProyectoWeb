@@ -17,6 +17,9 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+/**
+ * Persiste la parte analítica: recorridos, checkpoints, mapas, métricas y reconocimientos.
+ */
 public class AnaliticaManagementService {
 
     private final RecorridoRepository recorridoRepository;

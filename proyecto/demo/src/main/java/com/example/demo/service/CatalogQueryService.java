@@ -44,6 +44,9 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+/**
+ * Servicio de consulta centralizado para listas, estadísticas y búsquedas por id.
+ */
 public class CatalogQueryService {
 
     private final UsuarioRepository usuarioRepository;

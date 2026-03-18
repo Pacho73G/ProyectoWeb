@@ -16,6 +16,9 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "configuraciones_sistema")
+/**
+ * Reglas operativas globales del sistema: umbrales, tiempos y recordatorios.
+ */
 public class ConfiguracionSistema {
 
     @Id

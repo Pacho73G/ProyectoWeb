@@ -10,6 +10,9 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "coordinadores")
+/**
+ * Perfil que supervisa cobertura, incidentes y reasignaciones.
+ */
 public class Coordinador extends Usuario {
 
     @Column(name = "nivel", nullable = false)

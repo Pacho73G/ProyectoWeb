@@ -22,6 +22,9 @@ import lombok.Setter;
 @Entity
 @Table(name = "usuarios")
 @Inheritance(strategy = InheritanceType.JOINED)
+/**
+ * Entidad base del sistema. Los perfiles concretos heredan de aquí usando JOINED.
+ */
 public abstract class Usuario {
 
     @Id

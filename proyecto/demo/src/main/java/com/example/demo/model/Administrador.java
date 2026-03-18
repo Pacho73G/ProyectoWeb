@@ -10,6 +10,9 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "administradores")
+/**
+ * Perfil encargado de estructura del sistema: usuarios, zonas, turnos y configuración.
+ */
 public class Administrador extends Usuario {
 
     @Column(name = "cargo", nullable = false)

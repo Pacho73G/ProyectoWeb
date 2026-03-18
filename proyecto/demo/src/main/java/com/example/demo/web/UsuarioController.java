@@ -22,6 +22,9 @@ import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/usuarios")
+/**
+ * CRUD principal de usuarios del sistema con herencia por rol.
+ */
 public class UsuarioController extends BaseController {
 
     private final UsuarioManagementService usuarioManagementService;
@@ -99,6 +102,7 @@ public class UsuarioController extends BaseController {
     private Usuario mapUsuario(UsuarioForm form, Usuario existing) {
         Usuario entity = existing;
         if (entity == null) {
+            // Se crea el subtipo correcto desde el inicio para respetar la herencia JOINED.
             entity = switch (form.getRol()) {
                 case DOCENTE -> new Docente();
                 case COORDINADOR -> new Coordinador();

@@ -20,6 +20,9 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "mapas_calor")
+/**
+ * Resumen analítico de incidentes por zona, franja y periodo.
+ */
 public class MapaCalor {
 
     @Id

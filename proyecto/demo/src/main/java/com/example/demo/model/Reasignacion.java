@@ -21,6 +21,9 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "reasignaciones")
+/**
+ * Solicitud y resolución de reemplazo cuando un docente no puede cubrir su turno.
+ */
 public class Reasignacion {
 
     @Id

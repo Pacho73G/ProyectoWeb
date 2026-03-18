@@ -20,6 +20,9 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "incidentes")
+/**
+ * Registro rápido de una situación ocurrida durante la vigilancia.
+ */
 public class Incidente {
 
     @Id

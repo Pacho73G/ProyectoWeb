@@ -22,6 +22,9 @@ import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping
+/**
+ * CRUD de vigilancia activa: recorridos y checkpoints de validación.
+ */
 public class RecorridoCheckpointController extends BaseController {
 
     private final AnaliticaManagementService analiticaManagementService;

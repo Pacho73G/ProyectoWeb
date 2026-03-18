@@ -20,6 +20,9 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "notificaciones")
+/**
+ * Mensaje asociado al turno: recordatorios, alertas u otros avisos operativos.
+ */
 public class Notificacion {
 
     @Id

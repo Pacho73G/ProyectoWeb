@@ -18,6 +18,9 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "checkpoints_recorrido")
+/**
+ * Punto de validación por QR dentro de una zona para comprobar movilidad del docente.
+ */
 public class CheckpointRecorrido {
 
     @Id

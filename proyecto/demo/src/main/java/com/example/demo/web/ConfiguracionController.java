@@ -18,6 +18,9 @@ import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/configuraciones")
+/**
+ * CRUD de parámetros operativos globales del sistema.
+ */
 public class ConfiguracionController extends BaseController {
 
     private final UsuarioManagementService usuarioManagementService;

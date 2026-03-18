@@ -23,6 +23,9 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "turnos")
+/**
+ * Unidad central de operación: asigna un docente a una zona en una franja y fecha concretas.
+ */
 public class Turno {
 
     @Id

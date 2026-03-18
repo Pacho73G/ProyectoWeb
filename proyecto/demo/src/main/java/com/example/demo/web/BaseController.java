@@ -16,11 +16,15 @@ import com.example.demo.service.CatalogQueryService;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
+/**
+ * Base común de controladores MVC. Inyecta catálogos y datos compartidos para formularios/vistas.
+ */
 public abstract class BaseController {
 
     protected final CatalogQueryService catalogQueryService;
 
     protected void addShared(Model model) {
+        // Se precargan listas maestras para selectores y tablas simples en la MPA.
         model.addAttribute("usuarios", catalogQueryService.usuarios());
         model.addAttribute("docentes", catalogQueryService.docentes());
         model.addAttribute("coordinadores", catalogQueryService.coordinadores());
@@ -56,6 +60,7 @@ public abstract class BaseController {
     }
 
     protected String prepareForm(Model model, String template, Object form, String titulo, String accion) {
+        // Reutiliza el mismo patrón de armado de formularios en todos los módulos.
         addShared(model);
         model.addAttribute("form", form);
         model.addAttribute("titulo", titulo);

@@ -6,6 +6,9 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+/**
+ * Fachada usada por vistas compartidas y batch para no acoplarse a varios servicios concretos.
+ */
 public class SistemaService {
 
     private final CatalogQueryService catalogQueryService;

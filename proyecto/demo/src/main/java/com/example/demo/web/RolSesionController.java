@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
+/**
+ * Simula la selección de rol en ausencia de autenticación real para la primera entrega.
+ */
 public class RolSesionController {
 
     @GetMapping("/seleccionar-rol")

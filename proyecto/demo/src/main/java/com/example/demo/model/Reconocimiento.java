@@ -20,6 +20,9 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "reconocimientos")
+/**
+ * Reconocimiento institucional generado a partir de métricas positivas.
+ */
 public class Reconocimiento {
 
     @Id

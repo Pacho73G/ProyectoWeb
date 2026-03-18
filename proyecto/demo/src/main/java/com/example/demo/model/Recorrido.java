@@ -20,6 +20,9 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "recorridos")
+/**
+ * Evidencia de vigilancia activa dentro del turno.
+ */
 public class Recorrido {
 
     @Id

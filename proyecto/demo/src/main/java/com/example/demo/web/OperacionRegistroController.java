@@ -28,6 +28,9 @@ import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping
+/**
+ * Controla los registros operativos generados durante la vigilancia.
+ */
 public class OperacionRegistroController extends BaseController {
 
     private final OperacionManagementService operacionManagementService;
@@ -226,6 +229,7 @@ public class OperacionRegistroController extends BaseController {
         if (bindingResult.hasErrors()) {
             return prepareForm(model, "operacion/limpieza-form", form, "Nuevo registro de limpieza", "/limpiezas");
         }
+        // Si ya existe limpieza para ese turno, se actualiza para evitar duplicados one-to-one.
         RegistroLimpieza existente = catalogQueryService.limpiezaPorTurno(form.getTurnoId());
         operacionManagementService.guardar(map(form, existente != null ? existente : new RegistroLimpieza()));
         ra.addFlashAttribute("successMessage", existente != null ? "Limpieza actualizada para ese turno." : "Limpieza creada.");

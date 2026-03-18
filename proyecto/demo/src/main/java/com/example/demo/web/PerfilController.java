@@ -23,6 +23,9 @@ import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping
+/**
+ * CRUD separado por subtipo para docentes, coordinadores y administradores.
+ */
 public class PerfilController extends BaseController {
 
     private final UsuarioManagementService usuarioManagementService;

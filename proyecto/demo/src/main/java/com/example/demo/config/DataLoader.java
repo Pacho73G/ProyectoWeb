@@ -39,12 +39,17 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "app.seed.enabled", havingValue = "true", matchIfMissing = true)
+/**
+ * Carga datos semilla solo cuando la base está vacía.
+ * Se usa como batch inicial para la primera entrega.
+ */
 public class DataLoader implements CommandLineRunner {
 
     private final SistemaService sistemaService;
 
     @Override
     public void run(String... args) {
+        // Evita duplicar la carga semilla cuando la base ya tiene información.
         if (sistemaService.totalDocentes() > 0) {
             return;
         }
@@ -220,6 +225,7 @@ public class DataLoader implements CommandLineRunner {
         turno.setHoraInicio(LocalTime.parse(inicio));
         turno.setHoraFin(LocalTime.parse(fin));
         turno.setEstado(estado);
+        // Se deja una marca de apertura para que el dashboard muestre datos operativos desde el arranque.
         turno.setAbiertoEn(LocalDateTime.now().minusMinutes(30));
         return sistemaService.guardar(turno);
     }
