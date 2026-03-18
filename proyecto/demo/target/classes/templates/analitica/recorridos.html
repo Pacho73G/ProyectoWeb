@@ -1,1 +1,34 @@
-<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: shell('Recorridos', ~{::section})}"><section class="panel"><div class="table-toolbar"><p class="muted">Vigilancia activa de docentes.</p><a class="primary-button" th:href="@{/recorridos/nuevo}">Nuevo recorrido</a></div><table><thead><tr><th>Docente</th><th>Turno</th><th>Estado</th><th>Duración</th><th>Acciones</th></tr></thead><tbody><tr th:each="item : ${recorridos}"><td th:text="${item.docente.nombre}"></td><td th:text="${item.turno.franja}"></td><td th:text="${item.estado}"></td><td th:text="${item.duracionMinutos}"></td><td class="table-actions"><a class="secondary-button" th:href="@{/recorridos/{id}/editar(id=${item.id})}">Editar</a><form method="post" th:action="@{/recorridos/{id}/eliminar(id=${item.id})}"><button class="danger-button">Eliminar</button></form></td></tr></tbody></table></section></html>
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: shell('Recorridos', ~{::section})}">
+<section class="panel">
+    <div class="table-toolbar">
+        <p class="muted">Vigilancia activa y evidencias de recorrido.</p>
+        <a class="primary-button" th:if="${permisos.allows('recorridos', 'create')}" th:href="@{/recorridos/nuevo}">Nuevo recorrido</a>
+    </div>
+    <table>
+        <thead>
+        <tr>
+            <th>Docente</th>
+            <th>Turno</th>
+            <th>Estado</th>
+            <th>Duración</th>
+            <th th:if="${permisos.showsActions('recorridos')}">Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${recorridos}">
+            <td th:text="${item.docente.nombre}"></td>
+            <td th:text="${item.turno.franja}"></td>
+            <td th:text="${item.estado}"></td>
+            <td th:text="${item.duracionMinutos}"></td>
+            <td class="table-actions" th:if="${permisos.showsActions('recorridos')}">
+                <a class="secondary-button" th:if="${permisos.allows('recorridos', 'edit')}" th:href="@{/recorridos/{id}/editar(id=${item.id})}">Editar</a>
+                <form method="post" th:if="${permisos.allows('recorridos', 'delete')}" th:action="@{/recorridos/{id}/eliminar(id=${item.id})}">
+                    <button class="danger-button">Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+</html>

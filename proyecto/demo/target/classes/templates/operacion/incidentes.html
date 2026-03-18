@@ -1,1 +1,34 @@
-<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: shell('Incidentes', ~{::section})}"><section class="panel"><div class="table-toolbar"><p class="muted">CRUD de incidentes reportados.</p><a class="primary-button" th:href="@{/incidentes/nuevo}">Nuevo incidente</a></div><table><thead><tr><th>Tipo</th><th>Severidad</th><th>Docente</th><th>Zona</th><th>Acciones</th></tr></thead><tbody><tr th:each="item : ${incidentes}"><td th:text="${item.tipo}"></td><td th:text="${item.severidad}"></td><td th:text="${item.docente.nombre}"></td><td th:text="${item.zona.nombre}"></td><td class="table-actions"><a class="secondary-button" th:href="@{/incidentes/{id}/editar(id=${item.id})}">Editar</a><form method="post" th:action="@{/incidentes/{id}/eliminar(id=${item.id})}"><button class="danger-button">Eliminar</button></form></td></tr></tbody></table></section></html>
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: shell('Incidentes', ~{::section})}">
+<section class="panel">
+    <div class="table-toolbar">
+        <p class="muted" th:text="${rolActivo == 'docente' ? 'Registro ágil de situaciones durante el turno.' : 'Historial de incidentes reportados.'}">Incidentes</p>
+        <a class="primary-button" th:if="${permisos.allows('incidentes', 'create')}" th:href="@{/incidentes/nuevo}">Nuevo incidente</a>
+    </div>
+    <table>
+        <thead>
+        <tr>
+            <th>Tipo</th>
+            <th>Severidad</th>
+            <th>Docente</th>
+            <th>Zona</th>
+            <th th:if="${permisos.showsActions('incidentes')}">Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${incidentes}">
+            <td th:text="${item.tipo}"></td>
+            <td th:text="${item.severidad}"></td>
+            <td th:text="${item.docente.nombre}"></td>
+            <td th:text="${item.zona.nombre}"></td>
+            <td class="table-actions" th:if="${permisos.showsActions('incidentes')}">
+                <a class="secondary-button" th:if="${permisos.allows('incidentes', 'edit')}" th:href="@{/incidentes/{id}/editar(id=${item.id})}">Editar</a>
+                <form method="post" th:if="${permisos.allows('incidentes', 'delete')}" th:action="@{/incidentes/{id}/eliminar(id=${item.id})}">
+                    <button class="danger-button">Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+</html>

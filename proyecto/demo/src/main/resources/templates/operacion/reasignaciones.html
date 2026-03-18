@@ -1,1 +1,34 @@
-<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: shell('Reasignaciones', ~{::section})}"><section class="panel"><div class="table-toolbar"><p class="muted">CRUD de reasignaciones.</p><a class="primary-button" th:href="@{/reasignaciones/nuevo}">Nueva reasignación</a></div><table><thead><tr><th>Turno</th><th>Solicitante</th><th>Reemplazo</th><th>Estado</th><th>Acciones</th></tr></thead><tbody><tr th:each="item : ${reasignaciones}"><td th:text="${item.turno.franja}"></td><td th:text="${item.docenteSolicitante.nombre}"></td><td th:text="${item.docenteReemplazo != null ? item.docenteReemplazo.nombre : 'Pendiente'}"></td><td th:text="${item.estado}"></td><td class="table-actions"><a class="secondary-button" th:href="@{/reasignaciones/{id}/editar(id=${item.id})}">Editar</a><form method="post" th:action="@{/reasignaciones/{id}/eliminar(id=${item.id})}"><button class="danger-button">Eliminar</button></form></td></tr></tbody></table></section></html>
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: shell('Reasignaciones', ~{::section})}">
+<section class="panel">
+    <div class="table-toolbar">
+        <p class="muted" th:text="${rolActivo == 'coordinador' ? 'Gestión operativa de reasignaciones.' : 'Solicitudes de reasignación por impedimento.'}">Reasignaciones</p>
+        <a class="primary-button" th:if="${permisos.allows('reasignaciones', 'create')}" th:href="@{/reasignaciones/nuevo}">Nueva reasignación</a>
+    </div>
+    <table>
+        <thead>
+        <tr>
+            <th>Turno</th>
+            <th>Solicitante</th>
+            <th>Reemplazo</th>
+            <th>Estado</th>
+            <th th:if="${permisos.showsActions('reasignaciones')}">Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${reasignaciones}">
+            <td th:text="${item.turno.franja}"></td>
+            <td th:text="${item.docenteSolicitante.nombre}"></td>
+            <td th:text="${item.docenteReemplazo != null ? item.docenteReemplazo.nombre : 'Pendiente'}"></td>
+            <td th:text="${item.estado}"></td>
+            <td class="table-actions" th:if="${permisos.showsActions('reasignaciones')}">
+                <a class="secondary-button" th:if="${permisos.allows('reasignaciones', 'edit')}" th:href="@{/reasignaciones/{id}/editar(id=${item.id})}">Editar</a>
+                <form method="post" th:if="${permisos.allows('reasignaciones', 'delete')}" th:action="@{/reasignaciones/{id}/eliminar(id=${item.id})}">
+                    <button class="danger-button">Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+</html>

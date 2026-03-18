@@ -1,1 +1,32 @@
-<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: shell('Registros de limpieza', ~{::section})}"><section class="panel"><div class="table-toolbar"><p class="muted">Cierre de turnos con limpieza.</p><a class="primary-button" th:href="@{/limpiezas/nuevo}">Nuevo registro</a></div><table><thead><tr><th>Turno</th><th>Escala</th><th>Registrado en</th><th>Acciones</th></tr></thead><tbody><tr th:each="item : ${limpiezas}"><td th:text="${item.turno.franja}"></td><td th:text="${item.escala}"></td><td th:text="${item.registradoEn}"></td><td class="table-actions"><a class="secondary-button" th:href="@{/limpiezas/{id}/editar(id=${item.id})}">Editar</a><form method="post" th:action="@{/limpiezas/{id}/eliminar(id=${item.id})}"><button class="danger-button">Eliminar</button></form></td></tr></tbody></table></section></html>
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: shell('Registros de limpieza', ~{::section})}">
+<section class="panel">
+    <div class="table-toolbar">
+        <p class="muted">Cierre de turnos con limpieza.</p>
+        <a class="primary-button" th:if="${permisos.allows('limpiezas', 'create')}" th:href="@{/limpiezas/nuevo}">Nuevo registro</a>
+    </div>
+    <table>
+        <thead>
+        <tr>
+            <th>Turno</th>
+            <th>Escala</th>
+            <th>Registrado en</th>
+            <th th:if="${permisos.showsActions('limpiezas')}">Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${limpiezas}">
+            <td th:text="${item.turno.franja}"></td>
+            <td th:text="${item.escala}"></td>
+            <td th:text="${item.registradoEn}"></td>
+            <td class="table-actions" th:if="${permisos.showsActions('limpiezas')}">
+                <a class="secondary-button" th:if="${permisos.allows('limpiezas', 'edit')}" th:href="@{/limpiezas/{id}/editar(id=${item.id})}">Editar</a>
+                <form method="post" th:if="${permisos.allows('limpiezas', 'delete')}" th:action="@{/limpiezas/{id}/eliminar(id=${item.id})}">
+                    <button class="danger-button">Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+</html>

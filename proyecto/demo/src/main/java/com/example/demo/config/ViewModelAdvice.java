@@ -102,10 +102,16 @@ public class ViewModelAdvice {
                             new NavItem("Recorridos", "/recorridos", "route"),
                             new NavItem("Mapas de calor", "/mapas-calor", "map"),
                             new NavItem("Métricas", "/metricas", "trophy"),
+                            new NavItem("Reconocimientos", "/reconocimientos", "medal"),
                             new NavItem("Reportes", "/reportes", "report"),
                             new NavItem("Notificaciones", "/notificaciones", "bell")
                     ));
         };
+    }
+
+    @ModelAttribute("permisos")
+    public RolePermissions permisos(@ModelAttribute("rolActivo") String rolActivo) {
+        return new RolePermissions(rolActivo);
     }
 
     public record GlobalStats(long docentes, long turnos, long incidentes, long reasignaciones, long recorridos,
@@ -117,5 +123,67 @@ public class ViewModelAdvice {
 
     public record RolUi(String key, String accentClass, String initials, String profileName, String label,
                         List<NavItem> navItems) {
+    }
+
+    public static final class RolePermissions {
+
+        private final String role;
+
+        public RolePermissions(String role) {
+            this.role = role;
+        }
+
+        public boolean allows(String resource, String action) {
+            return switch (role) {
+                case "administrador" -> allowsAdministrador(resource, action);
+                case "docente" -> allowsDocente(resource, action);
+                default -> allowsCoordinador(resource, action);
+            };
+        }
+
+        public boolean showsActions(String resource) {
+            return allows(resource, "edit") || allows(resource, "delete");
+        }
+
+        private boolean allowsAdministrador(String resource, String action) {
+            return switch (resource) {
+                case "usuarios", "docentes", "coordinadores", "administradores",
+                        "turnos", "zonas", "checkpoints", "configuraciones" -> managed(action);
+                case "notificaciones", "metricas", "mapas-calor", "reconocimientos" -> managed(action);
+                case "incidentes", "reasignaciones", "recorridos", "checkins", "limpiezas" -> readOnly(action);
+                default -> false;
+            };
+        }
+
+        private boolean allowsDocente(String resource, String action) {
+            return switch (resource) {
+                case "turnos", "notificaciones", "metricas", "reconocimientos" -> readOnly(action);
+                case "checkins", "incidentes", "recorridos", "limpiezas" -> createOnly(action);
+                case "reasignaciones" -> "view".equals(action) || "create".equals(action);
+                default -> false;
+            };
+        }
+
+        private boolean allowsCoordinador(String resource, String action) {
+            return switch (resource) {
+                case "turnos", "zonas", "checkins", "incidentes", "mapas-calor", "metricas", "notificaciones",
+                        "recorridos", "reconocimientos" -> readOnly(action);
+                case "reasignaciones" -> "view".equals(action) || "create".equals(action) || "edit".equals(action);
+                default -> false;
+            };
+        }
+
+        private boolean managed(String action) {
+            return "view".equals(action) || "create".equals(action) || "edit".equals(action) || "delete".equals(action)
+                    || "save".equals(action);
+        }
+
+        private boolean readOnly(String action) {
+            return "view".equals(action);
+        }
+
+        private boolean createOnly(String action) {
+            return "view".equals(action) || "create".equals(action) || "save".equals(action);
+        }
     }
 }

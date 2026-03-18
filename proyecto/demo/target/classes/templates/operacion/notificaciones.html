@@ -1,1 +1,34 @@
-<!DOCTYPE html><html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: shell('Notificaciones', ~{::section})}"><section class="panel"><div class="table-toolbar"><p class="muted">Mensajes disparados por los turnos.</p><a class="primary-button" th:href="@{/notificaciones/nuevo}">Nueva notificación</a></div><table><thead><tr><th>Turno</th><th>Tipo</th><th>Leída</th><th>Anticipación</th><th>Acciones</th></tr></thead><tbody><tr th:each="item : ${notificaciones}"><td th:text="${item.turno.franja}"></td><td th:text="${item.tipo}"></td><td th:text="${item.leida}"></td><td th:text="${item.minutosAnticipacion}"></td><td class="table-actions"><a class="secondary-button" th:href="@{/notificaciones/{id}/editar(id=${item.id})}">Editar</a><form method="post" th:action="@{/notificaciones/{id}/eliminar(id=${item.id})}"><button class="danger-button">Eliminar</button></form></td></tr></tbody></table></section></html>
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: shell('Notificaciones', ~{::section})}">
+<section class="panel">
+    <div class="table-toolbar">
+        <p class="muted">Mensajes y recordatorios asociados a los turnos.</p>
+        <a class="primary-button" th:if="${permisos.allows('notificaciones', 'create')}" th:href="@{/notificaciones/nuevo}">Nueva notificación</a>
+    </div>
+    <table>
+        <thead>
+        <tr>
+            <th>Turno</th>
+            <th>Tipo</th>
+            <th>Leída</th>
+            <th>Anticipación</th>
+            <th th:if="${permisos.showsActions('notificaciones')}">Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="item : ${notificaciones}">
+            <td th:text="${item.turno.franja}"></td>
+            <td th:text="${item.tipo}"></td>
+            <td th:text="${item.leida}"></td>
+            <td th:text="${item.minutosAnticipacion}"></td>
+            <td class="table-actions" th:if="${permisos.showsActions('notificaciones')}">
+                <a class="secondary-button" th:if="${permisos.allows('notificaciones', 'edit')}" th:href="@{/notificaciones/{id}/editar(id=${item.id})}">Editar</a>
+                <form method="post" th:if="${permisos.allows('notificaciones', 'delete')}" th:action="@{/notificaciones/{id}/eliminar(id=${item.id})}">
+                    <button class="danger-button">Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+</html>

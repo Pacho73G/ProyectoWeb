@@ -83,9 +83,12 @@ public class DataLoader implements CommandLineRunner {
         Zona cafeteria = zona("Cafetería", "Control de filas y convivencia", "Pabellón central", 150, true);
         Zona deportiva = zona("Zona Deportiva", "Canchas y graderías", "Bloque B", 220, true);
 
-        Turno turno1 = turno(docente1, patio, LocalDate.now(), "Recreo mañana", "10:15", "10:45", EstadoTurno.EN_CURSO);
-        Turno turno2 = turno(docente2, cafeteria, LocalDate.now(), "Almuerzo", "13:00", "13:30", EstadoTurno.PENDIENTE);
-        Turno turno3 = turno(docente3, deportiva, LocalDate.now(), "Recreo tarde", "15:15", "15:45", EstadoTurno.SIN_COBERTURA);
+        Turno turno1 = turno(docente1, patio, LocalDate.now(), "Recreo mañana primaria", "09:30", "09:50", EstadoTurno.EN_CURSO);
+        Turno turno2 = turno(docente2, cafeteria, LocalDate.now(), "Cambio de bloque media mañana", "11:20", "11:35", EstadoTurno.PENDIENTE);
+        Turno turno3 = turno(docente3, cafeteria, LocalDate.now(), "Almuerzo bachillerato", "13:00", "13:30", EstadoTurno.PENDIENTE);
+        Turno turno4 = turno(docente1, deportiva, LocalDate.now(), "Recreo tarde", "15:15", "15:45", EstadoTurno.SIN_COBERTURA);
+        Turno turno5 = turno(docente2, patio, LocalDate.now().plusDays(1), "Ingreso jornada mañana", "06:40", "07:00", EstadoTurno.PENDIENTE);
+        Turno turno6 = turno(docente3, deportiva, LocalDate.now().plusDays(1), "Salida estudiantil", "16:30", "17:00", EstadoTurno.PENDIENTE);
 
         CheckIn checkIn = new CheckIn();
         checkIn.setTurno(turno1);
@@ -110,8 +113,8 @@ public class DataLoader implements CommandLineRunner {
         sistemaService.guardar(incidente);
 
         Reasignacion reasignacion = new Reasignacion();
-        reasignacion.setTurno(turno3);
-        reasignacion.setDocenteSolicitante(docente3);
+        reasignacion.setTurno(turno4);
+        reasignacion.setDocenteSolicitante(docente1);
         reasignacion.setDocenteReemplazo(docente2);
         reasignacion.setMotivo("Cobertura temporal por reunión académica.");
         reasignacion.setEstado(EstadoReasignacion.ACEPTADA);
@@ -128,9 +131,9 @@ public class DataLoader implements CommandLineRunner {
         sistemaService.guardar(limpieza);
 
         Notificacion notificacion = new Notificacion();
-        notificacion.setTurno(turno2);
+        notificacion.setTurno(turno3);
         notificacion.setTipo(TipoNotificacion.RECORDATORIO_10MIN);
-        notificacion.setMensaje("Tu turno en cafetería inicia en 10 minutos.");
+        notificacion.setMensaje("Tu turno de almuerzo bachillerato inicia en 10 minutos.");
         notificacion.setEnviadaEn(LocalDateTime.now().minusMinutes(1));
         notificacion.setLeida(false);
         notificacion.setMinutosAnticipacion(10);
