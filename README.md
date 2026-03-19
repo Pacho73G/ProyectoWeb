@@ -151,11 +151,11 @@ Debes tener una base PostgreSQL creada y accesible con las credenciales configur
 
 ### Video de sustentación
 
-`[AGREGAR_LINK_DEL_VIDEO_AQUI]`
+[`[AGREGAR_LINK_DEL_VIDEO_AQUI]`](https://youtu.be/pK5Q_UcGY0I?si=AmNmo-J5jtSWKzyN)
 
 ### Mockup de la aplicación
 
-`[AGREGAR_LINK_DEL_MOCKUP_AQUI]`
+[`[AGREGAR_LINK_DEL_MOCKUP_AQUI]`](https://ninth-grain-92242194.figma.site/login)
 
 ## Diagramas y Documentación
 
