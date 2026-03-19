@@ -187,7 +187,3 @@ Proyecto/
         │   └── test/
         └── mvnw / mvnw.cmd
 ```
-
-## Observaciones
-
-El proyecto fue construido con una orientación modular, separando la lógica de dominio, persistencia, servicios, controladores y vistas, con el objetivo de facilitar su evolución hacia entregas posteriores centradas en servicios REST, SPA y autenticación.
