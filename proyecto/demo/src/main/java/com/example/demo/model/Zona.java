@@ -1,10 +1,15 @@
 package com.example.demo.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -36,4 +41,19 @@ public class Zona {
 
     @Column(name = "activa", nullable = false)
     private Boolean activa = true;
+
+    @OneToMany(mappedBy = "zona", fetch = FetchType.LAZY)
+    private List<Turno> turnos = new ArrayList<>();
+
+    @OneToMany(mappedBy = "zona", fetch = FetchType.LAZY)
+    private List<CheckIn> checkIns = new ArrayList<>();
+
+    @OneToMany(mappedBy = "zona", fetch = FetchType.LAZY)
+    private List<Incidente> incidentes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "zona", fetch = FetchType.LAZY)
+    private List<CheckpointRecorrido> checkpoints = new ArrayList<>();
+
+    @OneToMany(mappedBy = "zona", fetch = FetchType.LAZY)
+    private List<MapaCalor> mapasCalor = new ArrayList<>();
 }

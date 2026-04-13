@@ -3,6 +3,8 @@ package com.example.demo.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,6 +16,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -70,4 +73,13 @@ public class Turno {
 
     @OneToOne(mappedBy = "turno", fetch = FetchType.LAZY)
     private RegistroLimpieza registroLimpieza;
+
+    @OneToMany(mappedBy = "turno", fetch = FetchType.LAZY)
+    private List<Incidente> incidentes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "turno", fetch = FetchType.LAZY)
+    private List<Recorrido> recorridos = new ArrayList<>();
+
+    @OneToMany(mappedBy = "turno", fetch = FetchType.LAZY)
+    private List<Notificacion> notificaciones = new ArrayList<>();
 }
