@@ -1,0 +1,184 @@
+package com.example.demo.web.api;
+
+record ZonaDTO(
+        Long id,
+        String nombre,
+        String descripcion,
+        String ubicacion,
+        Integer capacidadMaxima,
+        Boolean activa
+) {}
+
+record TurnoDTO(
+        Long id,
+        Long docenteId,
+        String docenteNombre,
+        String docenteEmail,
+        Long zonaId,
+        String zonaNombre,
+        String zonaUbicacion,
+        String fecha,
+        String horaInicio,
+        String horaFin,
+        String franja,
+        String estado
+) {}
+
+record IncidenteDTO(
+        Long id,
+        Long turnoId,
+        Long docenteId,
+        String docenteNombre,
+        Long zonaId,
+        String zonaNombre,
+        String tipo,
+        String severidad,
+        String descripcion,
+        String observacionSocial,
+        String registradoEn,
+        Boolean requiereSeguimiento
+) {}
+
+record CheckInDTO(
+        Long id,
+        Long turnoId,
+        String turnoFranja,
+        Long docenteId,
+        String docenteNombre,
+        Long zonaId,
+        String zonaNombre,
+        String timestamp,
+        String metodo,
+        String evidencia,
+        Boolean valido
+) {}
+
+record ReasignacionDTO(
+        Long id,
+        Long turnoId,
+        String turnoFranja,
+        String zonaNombre,
+        Long docenteSolicitanteId,
+        String docenteSolicitanteNombre,
+        Long docenteReemplazoId,
+        String docenteReemplazoNombre,
+        String motivo,
+        String estado,
+        String propuestaEn,
+        String respondidaEn,
+        Integer segundosVentana
+) {}
+
+record LimpiezaDTO(
+        Long id,
+        Long turnoId,
+        String turnoFranja,
+        Integer escala,
+        String observaciones,
+        String registradoEn
+) {}
+
+record NotificacionDTO(
+        Long id,
+        Long turnoId,
+        String turnoFranja,
+        String tipo,
+        String mensaje,
+        String enviadaEn,
+        Boolean leida,
+        Integer minutosAnticipacion
+) {}
+
+record MapaCalorDTO(
+        Long id,
+        Long zonaId,
+        String zonaNombre,
+        String franja,
+        String tipoIncidente,
+        Integer totalIncidentes,
+        Double porcentaje,
+        String periodoInicio,
+        String periodoFin
+) {}
+
+record MetricaDTO(
+        Long id,
+        Long docenteId,
+        String docenteNombre,
+        Double puntualidad,
+        Double cobertura,
+        Integer retrasos,
+        Integer recorridosCompletados,
+        Integer incidentesRegistrados,
+        Integer reasignacionesAceptadas,
+        Double puntajeTotal,
+        String periodo
+) {}
+
+record ReconocimientoDTO(
+        Long id,
+        Long metricaDocenteId,
+        String docenteNombre,
+        String titulo,
+        String descripcion,
+        String tipo,
+        String otorgadoEn,
+        String trimestre
+) {}
+
+record RecorridoDTO(
+        Long id,
+        Long docenteId,
+        String docenteNombre,
+        Long turnoId,
+        String turnoFranja,
+        String iniciadoEn,
+        String finalizadoEn,
+        String estado,
+        Integer duracionMinutos
+) {}
+
+record CheckpointDTO(
+        Long id,
+        Long zonaId,
+        String zonaNombre,
+        Long recorridoId,
+        String codigoQR,
+        String descripcion,
+        Integer orden,
+        String escaneadoEn
+) {}
+
+record UsuarioDTO(
+        Long id,
+        String nombre,
+        String email,
+        Boolean activo,
+        String rol,
+        String descriptor,
+        Integer cargaActual,
+        Integer puntajeGamificacion
+) {}
+
+record ConfiguracionDTO(
+        Long id,
+        Long administradorId,
+        String administradorNombre,
+        Integer minutosAlertaAusencia,
+        Integer segundosVentanaReasignacion,
+        Integer minutosInactividad,
+        Integer umbralIngreso,
+        Integer minutosRecordatorio1,
+        Integer minutosRecordatorio2
+) {}
+
+record ReporteResumenDTO(
+        Long totalDocentes,
+        Long totalTurnos,
+        Long totalIncidentes,
+        Long totalReasignaciones,
+        Long totalRecorridos,
+        Long totalReconocimientos
+) {}
+
+record ApiErrorDTO(String message) {}
