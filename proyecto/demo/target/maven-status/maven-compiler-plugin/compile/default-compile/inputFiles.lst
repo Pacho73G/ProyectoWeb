@@ -54,6 +54,15 @@ C:\Users\Francisco Guzman\OneDrive\Documentos\Septimo\Web\Proyecto\proyecto\demo
 C:\Users\Francisco Guzman\OneDrive\Documentos\Septimo\Web\Proyecto\proyecto\demo\src\main\java\com\example\demo\service\SistemaService.java
 C:\Users\Francisco Guzman\OneDrive\Documentos\Septimo\Web\Proyecto\proyecto\demo\src\main\java\com\example\demo\service\UsuarioManagementService.java
 C:\Users\Francisco Guzman\OneDrive\Documentos\Septimo\Web\Proyecto\proyecto\demo\src\main\java\com\example\demo\web\AnaliticaMetricaController.java
+C:\Users\Francisco Guzman\OneDrive\Documentos\Septimo\Web\Proyecto\proyecto\demo\src\main\java\com\example\demo\web\api\AnaliticaApiController.java
+C:\Users\Francisco Guzman\OneDrive\Documentos\Septimo\Web\Proyecto\proyecto\demo\src\main\java\com\example\demo\web\api\ApiDtos.java
+C:\Users\Francisco Guzman\OneDrive\Documentos\Septimo\Web\Proyecto\proyecto\demo\src\main\java\com\example\demo\web\api\ApiExceptionHandler.java
+C:\Users\Francisco Guzman\OneDrive\Documentos\Septimo\Web\Proyecto\proyecto\demo\src\main\java\com\example\demo\web\api\ApiMapper.java
+C:\Users\Francisco Guzman\OneDrive\Documentos\Septimo\Web\Proyecto\proyecto\demo\src\main\java\com\example\demo\web\api\ApiRequests.java
+C:\Users\Francisco Guzman\OneDrive\Documentos\Septimo\Web\Proyecto\proyecto\demo\src\main\java\com\example\demo\web\api\OperacionApiController.java
+C:\Users\Francisco Guzman\OneDrive\Documentos\Septimo\Web\Proyecto\proyecto\demo\src\main\java\com\example\demo\web\api\ReporteApiController.java
+C:\Users\Francisco Guzman\OneDrive\Documentos\Septimo\Web\Proyecto\proyecto\demo\src\main\java\com\example\demo\web\api\UsuarioApiController.java
+C:\Users\Francisco Guzman\OneDrive\Documentos\Septimo\Web\Proyecto\proyecto\demo\src\main\java\com\example\demo\web\api\ZonaTurnoApiController.java
 C:\Users\Francisco Guzman\OneDrive\Documentos\Septimo\Web\Proyecto\proyecto\demo\src\main\java\com\example\demo\web\BaseController.java
 C:\Users\Francisco Guzman\OneDrive\Documentos\Septimo\Web\Proyecto\proyecto\demo\src\main\java\com\example\demo\web\ConfiguracionController.java
 C:\Users\Francisco Guzman\OneDrive\Documentos\Septimo\Web\Proyecto\proyecto\demo\src\main\java\com\example\demo\web\form\AdministradorForm.java
