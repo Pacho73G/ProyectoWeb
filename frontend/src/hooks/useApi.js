@@ -1,3 +1,4 @@
+/* Archivo documentado: Hook reutilizable para ejecutar consultas HTTP desde componentes React y manejar estados de carga, error y respuesta. */
 import { useState, useEffect, useCallback } from 'react';
 
 export function useApi(fetchFn, deps = []) {

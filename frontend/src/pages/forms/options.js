@@ -1,3 +1,4 @@
+/* Archivo documentado: Opciones estáticas compartidas por varios formularios de la SPA. Evita repetir catálogos simples dentro de cada componente. */
 export const turnoEstados = [
   { value: 'PENDIENTE', label: 'PENDIENTE' },
   { value: 'EN_CURSO', label: 'EN_CURSO' },

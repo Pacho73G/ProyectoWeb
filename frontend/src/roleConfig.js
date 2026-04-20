@@ -1,3 +1,4 @@
+/* Archivo documentado: Configuración central de roles de la interfaz. Define permisos visibles, navegación y etiquetas usadas por la SPA según el perfil activo. */
 export const ROLE_LABELS = {
   coordinador: 'Coordinador',
   docente: 'Docente',

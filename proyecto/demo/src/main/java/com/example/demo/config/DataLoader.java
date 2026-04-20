@@ -1,3 +1,4 @@
+/* Archivo documentado: Carga datos semilla cuando la aplicación inicia y la base aún está vacía. Permite probar la SPA y la API sin crear registros manualmente. */
 package com.example.demo.config;
 
 import java.time.LocalDate;

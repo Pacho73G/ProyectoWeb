@@ -1,3 +1,4 @@
+/* Archivo documentado: Pantalla principal de la SPA. Consume la API y presenta una vista funcional del módulo correspondiente. */
 import { Badge } from '../components/Badge';
 import { CrudPage } from './CrudPage';
 import { getTurnos, deleteTurno } from '../api/turno.api';

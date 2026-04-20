@@ -1,3 +1,4 @@
+/* Archivo documentado: Formulario modal de la SPA. Orquesta campos, carga de opciones y acciones de creación o edición para una entidad concreta. */
 import { useMemo, useState } from 'react';
 import { FormField } from '../../components/FormField';
 import { createUsuario, updateUsuario } from '../../api/usuario.api';

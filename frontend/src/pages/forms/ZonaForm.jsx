@@ -1,3 +1,4 @@
+/* Archivo documentado: Formulario modal de la SPA. Orquesta campos, carga de opciones y acciones de creación o edición para una entidad concreta. */
 import { EntityForm } from './EntityForm';
 import { createZona, updateZona } from '../../api/zona.api';
 

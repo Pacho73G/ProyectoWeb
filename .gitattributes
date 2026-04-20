@@ -1,0 +1,9 @@
+* text=auto
+
+# Shell scripts must stay LF for WSL/Linux execution
+*.sh text eol=lf
+mvnw text eol=lf
+
+# Windows launchers
+*.cmd text eol=crlf
+*.bat text eol=crlf

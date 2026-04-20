@@ -1,3 +1,4 @@
+/* Archivo documentado: Componente reutilizable de la interfaz. Aísla una pieza visual o de interacción compartida por varias pantallas. */
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { HouseLogo } from './HouseLogo';
 import { getRole, NAV_ITEMS, ROLE_BADGES, ROLE_INITIALS, ROLE_LABELS } from '../roleConfig';

@@ -1,3 +1,4 @@
+/* Archivo documentado: Servicio de escritura para el módulo analítico. Centraliza altas, cambios y bajas de mapas, métricas, recorridos, checkpoints y reconocimientos. */
 package com.example.demo.service;
 
 import org.springframework.stereotype.Service;

@@ -1,189 +1,225 @@
 # Sistema de Vigilancia Docente
 
-Primera entrega del proyecto de desarrollo web orientado a la supervisión escolar durante recreos, almuerzos y otros bloques de vigilancia institucional.
+Aplicación web para gestión de vigilancia docente con frontend SPA en React y backend API REST en Spring Boot.
 
-**Diseñado y desarrollado por:** Francisco Javier Guzman Villegas
+## Estado actual
 
-## Descripción
+El proyecto ya no usa vistas Thymeleaf ni recursos estáticos renderizados por el backend.
 
-Este proyecto propone una aplicación web para mejorar el control de presencia docente, el registro de recorridos, la trazabilidad de incidentes y la toma de decisiones a partir de información operativa y analítica.
+- `frontend/` contiene la SPA React/Vite.
+- `proyecto/demo/` contiene la API REST, el acceso a datos y la carga semilla.
+- El backend entrega JSON y la SPA consume esos endpoints desde `http://localhost:8080/api`.
 
-La solución busca responder al problema de ausencias, retrasos, vigilancia pasiva, falta de registro oportuno e inexistencia de evidencia estructurada en los turnos de supervisión escolar.
+## Arquitectura
 
-## Alcance de Esta Primera Entrega
+### Frontend
 
-Esta entrega presenta:
+Ruta base: [frontend](/mnt/c/users/francisco%20guzman/onedrive/documentos/septimo/web/proyecto/frontend:1)
 
-- Aplicación multipágina (`MPA`) con diseño visual básico.
-- Implementación de funcionalidades `CRUD` para las entidades y asociaciones principales del sistema.
-- Script de estructura de base de datos.
-- Programa `Batch` en Java Spring para la carga inicial de información.
-- Navegación diferenciada por rol a nivel de experiencia de usuario.
+Estructura principal:
 
-## Usuarios del Sistema
-
-- **Docente en turno**
-  Registra check-in, recorridos, incidentes, limpieza y solicitudes de reasignación. También consulta turnos, métricas, reconocimientos y notificaciones.
-
-- **Coordinador**
-  Supervisa la operación, consulta incidentes, reasignaciones, mapas de calor, métricas, reportes y tablero general.
-
-- **Administrador**
-  Gestiona usuarios, zonas, checkpoints, turnos y configuración operativa del sistema.
-
-## Funcionalidades Implementadas
-
-### Módulo operativo
-
-- Gestión de turnos.
-- Registro de check-in por turno.
-- Registro de incidentes.
-- Solicitud y seguimiento de reasignaciones.
-- Registro de limpieza al cierre del turno.
-- Gestión de notificaciones.
-- Registro de recorridos y checkpoints.
-
-### Módulo analítico
-
-- Mapas de calor.
-- Métricas docentes.
-- Reconocimientos.
-- Reportes generales.
-
-### Módulo administrativo
-
-- Gestión de usuarios.
-- Gestión de docentes, coordinadores y administradores.
-- Gestión de zonas.
-- Gestión de checkpoints.
-- Configuración del sistema.
-
-## Modelo de Datos
-
-El sistema fue construido con base en un modelo persistente que incluye, entre otras, las siguientes entidades:
-
-- `Usuario`
-- `Docente`
-- `Coordinador`
-- `Administrador`
-- `ConfiguracionSistema`
-- `Zona`
-- `Turno`
-- `CheckIn`
-- `Incidente`
-- `Reasignacion`
-- `RegistroLimpieza`
-- `Notificacion`
-- `Recorrido`
-- `CheckpointRecorrido`
-- `MapaCalor`
-- `MetricaDocente`
-- `Reconocimiento`
-
-## Arquitectura del Proyecto
-
-El proyecto está organizado en capas:
-
-- `model`: entidades y enumeraciones del dominio
-- `repository`: acceso a datos con Spring Data JPA
-- `service`: reglas de negocio y operaciones del sistema
-- `web`: controladores MVC y formularios
-- `templates`: vistas Thymeleaf
-- `static`: estilos y recursos visuales
-- `config`: carga inicial, datos compartidos y configuración general
-
-## Tecnologías Utilizadas
-
-- Java 21
-- Spring Boot 3
-- Spring MVC
-- Spring Data JPA
-- Thymeleaf
-- PostgreSQL
-- Maven
-- HTML + CSS
-
-## Base de Datos
-
-La estructura de la base está definida en:
-
-- [`schema.sql`](./proyecto/demo/src/main/resources/schema.sql)
-
-La carga inicial de información se realiza mediante el batch:
-
-- [`DataLoader.java`](./proyecto/demo/src/main/java/com/example/demo/config/DataLoader.java)
-
-## Ejecución del Proyecto
-
-Ubícate en la carpeta del proyecto Spring Boot:
-
-```bash
-cd proyecto/demo
+```text
+frontend/
+├── src/
+│   ├── api/          # Clientes HTTP por recurso REST
+│   ├── components/   # Componentes reutilizables
+│   ├── hooks/        # Hooks compartidos
+│   ├── pages/        # Pantallas principales de la SPA
+│   ├── roleConfig.js # Permisos y navegación por rol
+│   ├── App.jsx       # Rutas principales
+│   └── main.jsx      # Punto de entrada
+├── package.json
+└── vite.config.js
 ```
 
-Ejecuta la aplicación con:
+### Backend
+
+Ruta base: [proyecto/demo](/mnt/c/users/francisco%20guzman/onedrive/documentos/septimo/web/proyecto/proyecto/demo:1)
+
+Estructura principal:
+
+```text
+proyecto/demo/
+├── src/main/java/com/example/demo/
+│   ├── config/                 # Configuración y carga inicial
+│   ├── exception/              # Excepciones de dominio
+│   ├── model/                  # Entidades y enums JPA
+│   ├── repository/             # Repositorios Spring Data
+│   ├── service/                # Lógica de negocio
+│   └── web/api/
+│       ├── controller/         # Endpoints REST
+│       ├── dto/                # DTOs de salida
+│       ├── handler/            # Manejo global de errores REST
+│       ├── mapper/             # Conversión entre dominio y API
+│       └── request/            # Payloads de entrada
+├── src/main/resources/
+│   ├── application.properties  # Configuración de Spring
+│   └── schema.sql              # Esquema de base de datos
+├── pom.xml
+└── mvnw
+```
+
+## Tecnologías
+
+- React 19
+- Vite
+- Spring Boot 3
+- Spring Web
+- Spring Data JPA
+- PostgreSQL
+- Lombok
+- Maven Wrapper
+
+## Módulos funcionales
+
+- Gestión de usuarios y docentes
+- Gestión de zonas y turnos
+- Registro de check-ins
+- Registro de incidentes
+- Gestión de reasignaciones
+- Registro de limpieza
+- Gestión de notificaciones
+- Gestión de recorridos y checkpoints
+- Mapas de calor
+- Métricas
+- Reconocimientos
+- Reporte resumen
+
+## API REST
+
+Base URL:
+
+```text
+http://localhost:8080/api
+```
+
+Recursos disponibles:
+
+- `GET/POST /usuarios`
+- `GET/PUT/DELETE /usuarios/{id}`
+- `GET/POST /docentes`
+- `GET/PUT/DELETE /docentes/{id}`
+- `GET/POST /configuraciones`
+- `GET/PUT/DELETE /configuraciones/{id}`
+- `GET/POST /zonas`
+- `GET/PUT/DELETE /zonas/{id}`
+- `GET/POST /turnos`
+- `GET/PUT/DELETE /turnos/{id}`
+- `GET/POST /checkins`
+- `GET/PUT/DELETE /checkins/{id}`
+- `GET/POST /incidentes`
+- `GET/PUT/DELETE /incidentes/{id}`
+- `GET/POST /reasignaciones`
+- `GET/PUT/DELETE /reasignaciones/{id}`
+- `GET/POST /limpiezas`
+- `GET/PUT/DELETE /limpiezas/{id}`
+- `GET/POST /notificaciones`
+- `GET/PUT/DELETE /notificaciones/{id}`
+- `GET/POST /recorridos`
+- `GET/PUT/DELETE /recorridos/{id}`
+- `GET/POST /checkpoints`
+- `GET/PUT/DELETE /checkpoints/{id}`
+- `GET/POST /mapas-calor`
+- `GET/PUT/DELETE /mapas-calor/{id}`
+- `GET/POST /metricas`
+- `GET/PUT/DELETE /metricas/{id}`
+- `GET/POST /reconocimientos`
+- `GET/PUT/DELETE /reconocimientos/{id}`
+- `GET /reportes/resumen`
+
+## Ejecución
+
+### Backend
+
+Desde [proyecto/demo](/mnt/c/users/francisco%20guzman/onedrive/documentos/septimo/web/proyecto/proyecto/demo:1):
 
 ```bash
 ./mvnw spring-boot:run
 ```
 
-En Windows PowerShell:
+En PowerShell:
 
 ```powershell
 .\mvnw.cmd spring-boot:run
 ```
 
-Luego abre:
+### Frontend
 
-```text
-http://localhost:8080/
+Desde [frontend](/mnt/c/users/francisco%20guzman/onedrive/documentos/septimo/web/proyecto/frontend:1):
+
+```bash
+npm install
+npm run dev
 ```
 
-## Configuración de Base de Datos
+Frontend por defecto:
 
-Revisa el archivo:
+```text
+http://localhost:5173
+```
 
-- [`application.properties`](./proyecto/demo/src/main/resources/application.properties)
+## Variables y configuración
 
-Debes tener una base PostgreSQL creada y accesible con las credenciales configuradas allí.
+Frontend:
 
-## Evidencias de la Entrega
+- `VITE_API_BASE_URL`
+  Si no se define, usa `http://localhost:8080/api`.
 
-### Video de sustentación
+Backend:
 
-[`Video`](https://youtu.be/pK5Q_UcGY0I?si=AmNmo-J5jtSWKzyN)
+- La configuración de base de datos está en [application.properties](/mnt/c/users/francisco%20guzman/onedrive/documentos/septimo/web/proyecto/proyecto/demo/src/main/resources/application.properties:1).
+- El esquema inicial está en [schema.sql](/mnt/c/users/francisco%20guzman/onedrive/documentos/septimo/web/proyecto/proyecto/demo/src/main/resources/schema.sql:1).
+- La carga semilla se ejecuta con [DataLoader.java](/mnt/c/users/francisco%20guzman/onedrive/documentos/septimo/web/proyecto/proyecto/demo/src/main/java/com/example/demo/config/DataLoader.java:1).
 
-### Mockup de la aplicación
+## Pruebas manuales rápidas
 
-[`Mockup`](https://ninth-grain-92242194.figma.site/login)
+### Navegador
 
-## Diagramas y Documentación
+Puedes verificar respuestas JSON con:
 
-### Casos de uso
+- `http://localhost:8080/api/usuarios`
+- `http://localhost:8080/api/zonas`
+- `http://localhost:8080/api/turnos`
+- `http://localhost:8080/api/reportes/resumen`
 
-Puedes abrir el documento desde:
+### Curl
+
+```bash
+curl http://localhost:8080/api/usuarios
+curl http://localhost:8080/api/zonas
+curl http://localhost:8080/api/reportes/resumen
+curl -X DELETE http://localhost:8080/api/zonas/1 -i
+```
+
+### Postman
+
+Ejemplos:
+
+- `GET http://localhost:8080/api/usuarios`
+- `GET http://localhost:8080/api/zonas`
+- `POST http://localhost:8080/api/zonas`
+- `PUT http://localhost:8080/api/zonas/{id}`
+- `DELETE http://localhost:8080/api/zonas/{id}`
+
+Payload ejemplo para `POST /zonas`:
+
+```json
+{
+  "nombre": "Zona Prueba",
+  "descripcion": "Zona creada desde Postman",
+  "ubicacion": "Bloque C",
+  "capacidadMaxima": 50,
+  "activa": true
+}
+```
+
+## Convención de comentarios
+
+El código fuente quedó documentado con comentarios de propósito por archivo para que sea más fácil identificar la responsabilidad de cada pieza sin saturar la lógica con ruido innecesario.
+
+## Documentación complementaria
 
 - [`CasosDeUSo.pdf`](./CasosDeUSo.pdf)
-
-### Diagrama de clases
-
-Puedes abrir el documento desde:
-
 - [`Diagrama_Clases.pdf`](./Diagrama_Clases.pdf)
-
-## Estructura del Repositorio
-
-```text
-Proyecto/
-├── README.md
-├── Diagrama_Clase.html
-└── proyecto/
-    └── demo/
-        ├── pom.xml
-        ├── src/
-        │   ├── main/
-        │   │   ├── java/
-        │   │   └── resources/
-        │   └── test/
-        └── mvnw / mvnw.cmd
-```
+- [`Mockup`](https://ninth-grain-92242194.figma.site/login)
+- [`Video`](https://youtu.be/pK5Q_UcGY0I?si=AmNmo-J5jtSWKzyN)

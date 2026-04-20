@@ -1,3 +1,4 @@
+/* Archivo documentado: Pantalla principal de la SPA. Consume la API y presenta una vista funcional del módulo correspondiente. */
 import { CrudPage } from './CrudPage';
 import { getLimpiezas, deleteLimpieza } from '../api/limpieza.api';
 import { LimpiezaForm } from './forms/LimpiezaForm';
