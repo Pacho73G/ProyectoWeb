@@ -1,3 +1,4 @@
+/* Archivo documentado: Entidad del dominio persistida con JPA. Modela una parte del sistema de vigilancia docente y su estado en base de datos. */
 package com.example.demo.model;
 
 import java.time.LocalDate;

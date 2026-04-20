@@ -1,3 +1,4 @@
+/* Archivo documentado: Componente raíz de la SPA. Define rutas, layout principal y la navegación entre pantallas. */
 import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { Sidebar } from './components/Sidebar';
 import { canAccessPath, getRole } from './roleConfig';

@@ -1,3 +1,4 @@
+/* Archivo documentado: Formulario modal de la SPA. Orquesta campos, carga de opciones y acciones de creación o edición para una entidad concreta. */
 import { EntityForm } from './EntityForm';
 import { createMapaCalor, updateMapaCalor } from '../../api/mapaCalor.api';
 import { getZonas } from '../../api/zona.api';

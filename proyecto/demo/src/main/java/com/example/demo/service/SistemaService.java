@@ -1,3 +1,4 @@
+/* Archivo documentado: Fachada interna usada por la carga inicial. Simplifica el acceso a varios servicios concretos cuando se construyen datos semilla. */
 package com.example.demo.service;
 
 import org.springframework.stereotype.Service;

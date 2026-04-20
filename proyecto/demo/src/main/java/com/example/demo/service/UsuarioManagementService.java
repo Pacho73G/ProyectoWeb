@@ -1,3 +1,4 @@
+/* Archivo documentado: Servicio de escritura para usuarios y configuración del sistema. Encapsula reglas de guardado y eliminación relacionadas con perfiles y ajustes globales. */
 package com.example.demo.service;
 
 import org.springframework.stereotype.Service;

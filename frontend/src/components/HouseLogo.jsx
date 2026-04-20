@@ -1,3 +1,4 @@
+/* Archivo documentado: Componente reutilizable de la interfaz. Aísla una pieza visual o de interacción compartida por varias pantallas. */
 export function HouseLogo() {
   return (
     <svg viewBox="0 0 64 64" aria-hidden="true">

@@ -1,3 +1,4 @@
+/* Archivo documentado: Componente reutilizable de la interfaz. Aísla una pieza visual o de interacción compartida por varias pantallas. */
 export function FormField({ field, value, error, onChange, options = [], disabled = false }) {
   const inputId = `field-${field.name}`;
 

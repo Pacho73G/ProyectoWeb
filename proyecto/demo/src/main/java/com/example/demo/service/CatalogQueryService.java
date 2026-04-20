@@ -1,3 +1,4 @@
+/* Archivo documentado: Servicio de consulta del sistema. Reúne lecturas y búsquedas reutilizadas por controladores, seed y flujos del dominio. */
 package com.example.demo.service;
 
 import java.util.List;

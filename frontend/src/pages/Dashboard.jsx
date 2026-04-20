@@ -1,3 +1,4 @@
+/* Archivo documentado: Pantalla principal de la SPA. Consume la API y presenta una vista funcional del módulo correspondiente. */
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getDocentes } from '../api/usuario.api';

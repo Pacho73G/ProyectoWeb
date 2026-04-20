@@ -1,3 +1,4 @@
+/* Archivo documentado: Utilidades HTTP genéricas del frontend. Estandarizan parseo de respuestas y manejo básico de errores de red. */
 async function parseResponse(response, fallbackMessage) {
   if (response.ok) {
     if (response.status === 204) return null;

@@ -1,3 +1,4 @@
+/* Archivo documentado: Pantalla principal de la SPA. Consume la API y presenta una vista funcional del módulo correspondiente. */
 import { CrudPage } from './CrudPage';
 import { getCheckIns, deleteCheckIn } from '../api/checkin.api';
 import { CheckInForm } from './forms/CheckInForm';

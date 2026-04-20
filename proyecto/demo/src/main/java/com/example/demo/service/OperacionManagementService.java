@@ -1,3 +1,4 @@
+/* Archivo documentado: Servicio de escritura para el módulo operativo. Gestiona persistencia y validaciones de zonas, turnos, incidentes, check-ins, limpiezas y notificaciones. */
 package com.example.demo.service;
 
 import org.springframework.stereotype.Service;
