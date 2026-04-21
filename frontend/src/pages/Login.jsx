@@ -1,4 +1,4 @@
-/* Archivo documentado: Pantalla principal de la SPA. Consume la API y presenta una vista funcional del módulo correspondiente. */
+/* Archivo documentado: Pantalla de acceso al sistema. Permite elegir el rol y redirige al selector de docente si se elige ese perfil. */
 import { useNavigate } from 'react-router-dom';
 import { HouseLogo } from '../components/HouseLogo';
 
@@ -30,7 +30,12 @@ export function Login() {
 
   const selectRole = (role) => {
     localStorage.setItem('rol', role);
-    navigate('/dashboard');
+    if (role === 'docente') {
+      // Docente goes to the sub-selector to pick which teacher
+      navigate('/docente-selector');
+    } else {
+      navigate('/dashboard');
+    }
   };
 
   return (

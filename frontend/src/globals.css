@@ -785,3 +785,17 @@ textarea {
     flex-direction: column;
   }
 }
+
+.notif-badge {
+  margin-left: auto;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #e11d48;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

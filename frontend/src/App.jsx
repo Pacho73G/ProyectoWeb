@@ -1,8 +1,19 @@
-/* Archivo documentado: Componente raíz de la SPA. Define rutas, layout principal y la navegación entre pantallas. */
-import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  Outlet,
+  useLocation,
+} from 'react-router-dom';
+
 import { Sidebar } from './components/Sidebar';
+import { SidebarProvider, useSidebar } from './pages/SidebarContext'; // 🔥 IMPORTANTE
+
 import { canAccessPath, getRole } from './roleConfig';
+
 import { Login } from './pages/Login';
+import { DocenteSelector } from './pages/DocenteSelector';
 import { Dashboard } from './pages/Dashboard';
 import { TurnosPage } from './pages/TurnosPage';
 import { ZonasPage } from './pages/ZonasPage';
@@ -20,11 +31,11 @@ import { UsuariosPage } from './pages/UsuariosPage';
 import { ConfiguracionesPage } from './pages/ConfiguracionesPage';
 import { ReportesPage } from './pages/ReportesPage';
 
-function AppLayout() {
-  const role = getRole();
+/* ================= LAYOUT INTERNO ================= */
 
+function LayoutContent() {
   return (
-    <div className={`app-shell role-${role}`}>
+    <div className="app-shell">
       <Sidebar />
       <main className="content">
         <Outlet />
@@ -33,9 +44,28 @@ function AppLayout() {
   );
 }
 
+/* ================= LAYOUT PRINCIPAL ================= */
+
+function AppLayout() {
+  return (
+    <SidebarProvider>
+      <LayoutContent />
+    </SidebarProvider>
+  );
+}
+
+/* ================= PROTECTED ================= */
+
 function ProtectedRoute({ children }) {
   const role = getRole();
   const location = useLocation();
+  const docenteId = localStorage.getItem('docenteId');
+
+  if (!role) return <Navigate to="/" replace />;
+
+  if (role === 'docente' && !docenteId) {
+    return <Navigate to="/docente-selector" replace />;
+  }
 
   if (!canAccessPath(role, location.pathname)) {
     return <Navigate to="/dashboard" replace />;
@@ -44,11 +74,16 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
+/* ================= APP ================= */
+
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+
         <Route path="/" element={<Login />} />
+        <Route path="/docente-selector" element={<DocenteSelector />} />
+
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/turnos" element={<ProtectedRoute><TurnosPage /></ProtectedRoute>} />
@@ -67,7 +102,9 @@ export default function App() {
           <Route path="/configuraciones" element={<ProtectedRoute><ConfiguracionesPage /></ProtectedRoute>} />
           <Route path="/reportes" element={<ProtectedRoute><ReportesPage /></ProtectedRoute>} />
         </Route>
+
         <Route path="*" element={<Navigate to="/" />} />
+
       </Routes>
     </BrowserRouter>
   );

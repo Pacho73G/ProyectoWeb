@@ -88,6 +88,22 @@ export function getRole() {
   return localStorage.getItem('rol') ?? 'coordinador';
 }
 
+/** Devuelve el id numérico del docente activo, o null si el rol no es docente. */
+export function getDocenteId() {
+  const raw = localStorage.getItem('docenteId');
+  return raw ? Number(raw) : null;
+}
+
+/** Devuelve el nombre del docente activo, o null si el rol no es docente. */
+export function getDocenteNombre() {
+  return localStorage.getItem('docenteNombre') ?? null;
+}
+
+/** Devuelve el email del docente activo, o null si el rol no es docente. */
+export function getDocenteEmail() {
+  return localStorage.getItem('docenteEmail') ?? null;
+}
+
 function managed(action) {
   return ['view', 'create', 'edit', 'delete', 'save'].includes(action);
 }

@@ -1,28 +1,91 @@
-/* Archivo documentado: Pantalla principal de la SPA. Consume la API y presenta una vista funcional del módulo correspondiente. */
-import { CrudPage } from './CrudPage';
-import { getNotificaciones, deleteNotificacion } from '../api/notificacion.api';
-import { NotificacionForm } from './forms/NotificacionForm';
+import { useEffect, useState } from 'react';
+import {
+  getUserNotifications,
+  markAllAsRead,
+} from '../api/notificacion.api';
+
+import {
+  getRole,
+  getDocenteId,
+  ROLE_VIEW_LABELS,
+} from '../roleConfig';
 
 export function NotificacionesPage() {
-  const columns = [
-    { key: 'turnoFranja', label: 'Turno' },
-    { key: 'tipo', label: 'Tipo' },
-    { key: 'leida', label: 'Leída', render: (row) => String(row.leida) },
-    { key: 'minutosAnticipacion', label: 'Anticipación' },
-  ];
+  const role = getRole();
+  const docenteId = getDocenteId();
+
+  const [items, setItems] = useState([]);
+
+  useEffect(() => {
+    loadNotifications();
+  }, []);
+
+  function loadNotifications() {
+    const data = getUserNotifications(role, docenteId);
+    setItems(data);
+    markAllAsRead(role, docenteId);
+  }
 
   return (
-    <CrudPage
-      title="Notificaciones"
-      toolbarNote="Mensajes y recordatorios asociados a los turnos."
-      createLabel="Nueva notificación"
-      fetchFn={getNotificaciones}
-      deleteFn={deleteNotificacion}
-      columns={columns}
-      FormComponent={NotificacionForm}
-      formPropName="notificacion"
-      deleteMessage="¿Eliminar esta notificación? Esta acción no se puede deshacer."
-      resource="notificaciones"
-    />
+    <div>
+      {/* TOPBAR */}
+      <div className="topbar">
+        <div>
+          <p className="eyebrow">
+            Colegio San José · Supervisión escolar
+          </p>
+
+          <h1>Notificaciones</h1>
+
+          <p className="muted role-label">
+            {ROLE_VIEW_LABELS[role]}
+          </p>
+        </div>
+      </div>
+
+      {/* PANEL */}
+      <div className="panel">
+        <div className="panel-intro">
+          <h3>Centro de notificaciones</h3>
+          <p>
+            Consulta alertas, asignaciones y avisos del sistema
+            según tu perfil.
+          </p>
+        </div>
+
+        {/* LISTADO */}
+        <div
+          style={{
+            display: 'grid',
+            gap: '14px',
+            marginTop: '20px',
+          }}
+        >
+          {items.length === 0 && (
+            <div className="empty-state">
+              <h4>Sin novedades</h4>
+              <p>No tienes notificaciones por ahora.</p>
+            </div>
+          )}
+
+          {items.map((n) => (
+            <div
+              key={n.id}
+              className="notification-card"
+            >
+              <div className="notification-icon">
+                🔔
+              </div>
+
+              <div className="notification-content">
+                <strong>{n.titulo}</strong>
+                <p>{n.mensaje}</p>
+                <small>{n.fecha}</small>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
