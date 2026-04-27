@@ -1,14 +1,50 @@
 import { apiUrl, JSON_HEADERS } from './config';
 import { getJson, sendJson, sendVoid } from './http';
+import {
+  getRole,
+  getUserId,
+} from '../roleConfig';
 
 const BASE = apiUrl('/notificaciones');
 
-/* API original */
-export const getNotificaciones = () => getJson(BASE, 'Error al cargar notificaciones');
-export const getNotificacion = (id) => getJson(`${BASE}/${id}`, 'Notificacion no encontrada');
-export const createNotificacion = (data) => sendJson(BASE, { method: 'POST', headers: JSON_HEADERS, body: JSON.stringify(data) }, 'Error al crear notificacion');
-export const updateNotificacion = (id, data) => sendJson(`${BASE}/${id}`, { method: 'PUT', headers: JSON_HEADERS, body: JSON.stringify(data) }, 'Error al actualizar notificacion');
-export const deleteNotificacion = (id) => sendVoid(`${BASE}/${id}`, { method: 'DELETE' }, 'Error al eliminar notificacion');
+/* ===============================
+   API BACKEND ORIGINAL
+================================= */
+
+export const getNotificaciones = () =>
+  getJson(BASE, 'Error al cargar notificaciones');
+
+export const getNotificacion = (id) =>
+  getJson(`${BASE}/${id}`, 'Notificacion no encontrada');
+
+export const createNotificacion = (data) =>
+  sendJson(
+    BASE,
+    {
+      method: 'POST',
+      headers: JSON_HEADERS,
+      body: JSON.stringify(data),
+    },
+    'Error al crear notificacion'
+  );
+
+export const updateNotificacion = (id, data) =>
+  sendJson(
+    `${BASE}/${id}`,
+    {
+      method: 'PUT',
+      headers: JSON_HEADERS,
+      body: JSON.stringify(data),
+    },
+    'Error al actualizar notificacion'
+  );
+
+export const deleteNotificacion = (id) =>
+  sendVoid(
+    `${BASE}/${id}`,
+    { method: 'DELETE' },
+    'Error al eliminar notificacion'
+  );
 
 /* ===============================
    SISTEMA LOCAL DE NOTIFICACIONES
@@ -24,6 +60,7 @@ function saveLocal(data) {
   localStorage.setItem(KEY, JSON.stringify(data));
 }
 
+/* Crear nueva notificación */
 export function pushNotification(notification) {
   const list = readLocal();
 
@@ -37,34 +74,50 @@ export function pushNotification(notification) {
   saveLocal(list);
 }
 
-export function getUserNotifications(role, docenteId = null) {
+/* ==========================================
+   Obtener notificaciones del usuario actual
+========================================== */
+export function getUserNotifications() {
+  const role = getRole();
+  const userId = getUserId();
+
   const list = readLocal();
 
   return list.filter((n) => {
-    if (n.role && n.role !== role) return false;
-    if (role === 'docente' && docenteId) {
-      return Number(n.docenteId) === Number(docenteId);
-    }
-    return true;
+    const sameRole = !n.role || n.role === role;
+    const sameUser =
+      n.userId === undefined ||
+      Number(n.userId) === Number(userId);
+
+    return sameRole && sameUser;
   });
 }
 
-export function getUnreadCount(role, docenteId = null) {
-  return getUserNotifications(role, docenteId).filter((n) => !n.leida).length;
+/* Cantidad no leídas */
+export function getUnreadCount() {
+  return getUserNotifications().filter((n) => !n.leida).length;
 }
 
-export function markAllAsRead(role, docenteId = null) {
-  const list = readLocal().map((n) => {
-    const matchRole = !n.role || n.role === role;
-    const matchDocente =
-      role !== 'docente' || !docenteId || Number(n.docenteId) === Number(docenteId);
+/* Marcar todas como leídas */
+export function markAllAsRead() {
+  const role = getRole();
+  const userId = getUserId();
 
-    if (matchRole && matchDocente) {
-      return { ...n, leida: true };
+  const updated = readLocal().map((n) => {
+    const sameRole = !n.role || n.role === role;
+    const sameUser =
+      n.userId === undefined ||
+      Number(n.userId) === Number(userId);
+
+    if (sameRole && sameUser) {
+      return {
+        ...n,
+        leida: true,
+      };
     }
 
     return n;
   });
 
-  saveLocal(list);
+  saveLocal(updated);
 }

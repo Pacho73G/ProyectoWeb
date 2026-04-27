@@ -23,7 +23,7 @@ export function TurnoForm({ turno, onSave, onCancel }) {
 
     pushNotification({
       role: 'docente',
-      docenteId: data.docenteId,
+      userId: data.docenteId,
       titulo: 'Nuevo turno asignado',
       mensaje: `Se te asignó el turno "${data.franja}" para el ${data.fecha}`,
     });

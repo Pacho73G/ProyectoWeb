@@ -1,4 +1,3 @@
-/* Archivo documentado: Configuración central de roles de la interfaz. Define permisos visibles, navegación y etiquetas usadas por la SPA según el perfil activo. */
 export const ROLE_LABELS = {
   coordinador: 'Coordinador',
   docente: 'Docente',
@@ -23,6 +22,43 @@ export const ROLE_INITIALS = {
   administrador: 'AD',
 };
 
+
+export const USERS = {
+  administrador: [
+    {
+      id: 1,
+      nombre: 'Laura Admin',
+      email: 'laura.admin@colegio.edu',
+    },
+  ],
+
+  coordinador: [
+    {
+      id: 2,
+      nombre: 'Ana Coordinadora',
+      email: 'ana.coord@colegio.edu',
+    },
+  ],
+
+  docente: [
+    {
+      id: 3,
+      nombre: 'Carlos Rodríguez',
+      email: 'carlos@colegio.edu',
+    },
+    {
+      id: 4,
+      nombre: 'María López',
+      email: 'maria@colegio.edu',
+    },
+    {
+      id: 5,
+      nombre: 'Juan Pérez',
+      email: 'juan@colegio.edu',
+    },
+  ],
+};
+
 export const NAV_ITEMS = {
   coordinador: [
     { to: '/dashboard', label: 'Dashboard en vivo', icon: 'dashboard' },
@@ -38,6 +74,7 @@ export const NAV_ITEMS = {
     { to: '/reportes', label: 'Reportes', icon: 'report' },
     { to: '/notificaciones', label: 'Notificaciones', icon: 'bell' },
   ],
+
   docente: [
     { to: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
     { to: '/turnos', label: 'Mis turnos', icon: 'calendar' },
@@ -50,6 +87,7 @@ export const NAV_ITEMS = {
     { to: '/metricas', label: 'Mis métricas', icon: 'trophy' },
     { to: '/reconocimientos', label: 'Reconocimientos', icon: 'medal' },
   ],
+
   administrador: [
     { to: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
     { to: '/usuarios', label: 'Usuarios', icon: 'user' },
@@ -84,22 +122,50 @@ const RESOURCE_BY_PATH = {
   '/reportes': 'reportes',
 };
 
+
 export function getRole() {
   return localStorage.getItem('rol') ?? 'coordinador';
 }
 
-/** Devuelve el id numérico del docente activo, o null si el rol no es docente. */
+export function setRole(role) {
+  localStorage.setItem('rol', role);
+}
+
+export function setUser(user) {
+  localStorage.setItem('userId', user.id);
+  localStorage.setItem('userNombre', user.nombre);
+  localStorage.setItem('userEmail', user.email);
+
+  if (getRole() === 'docente') {
+    localStorage.setItem('docenteId', user.id);
+    localStorage.setItem('docenteNombre', user.nombre);
+    localStorage.setItem('docenteEmail', user.email);
+  }
+}
+
+export function getUserId() {
+  const raw = localStorage.getItem('userId');
+  return raw ? Number(raw) : null;
+}
+
+export function getUserNombre() {
+  return localStorage.getItem('userNombre') ?? null;
+}
+
+export function getUserEmail() {
+  return localStorage.getItem('userEmail') ?? null;
+}
+
+
 export function getDocenteId() {
   const raw = localStorage.getItem('docenteId');
   return raw ? Number(raw) : null;
 }
 
-/** Devuelve el nombre del docente activo, o null si el rol no es docente. */
 export function getDocenteNombre() {
   return localStorage.getItem('docenteNombre') ?? null;
 }
 
-/** Devuelve el email del docente activo, o null si el rol no es docente. */
 export function getDocenteEmail() {
   return localStorage.getItem('docenteEmail') ?? null;
 }
@@ -128,6 +194,7 @@ function allowsAdministrador(resource, action) {
     case 'reconocimientos':
     case 'configuraciones':
       return managed(action);
+
     case 'incidentes':
     case 'reasignaciones':
     case 'recorridos':
@@ -135,6 +202,7 @@ function allowsAdministrador(resource, action) {
     case 'limpiezas':
     case 'reportes':
       return readOnly(action);
+
     default:
       return false;
   }
@@ -147,13 +215,16 @@ function allowsDocente(resource, action) {
     case 'metricas':
     case 'reconocimientos':
       return readOnly(action);
+
     case 'checkins':
     case 'incidentes':
     case 'recorridos':
     case 'limpiezas':
       return createOnly(action);
+
     case 'reasignaciones':
       return ['view', 'create'].includes(action);
+
     default:
       return false;
   }
@@ -170,11 +241,12 @@ function allowsCoordinador(resource, action) {
     case 'notificaciones':
     case 'recorridos':
     case 'reconocimientos':
-      return readOnly(action);
-    case 'reasignaciones':
-      return ['view', 'create', 'edit'].includes(action);
     case 'reportes':
       return readOnly(action);
+
+    case 'reasignaciones':
+      return ['view', 'create', 'edit'].includes(action);
+
     default:
       return false;
   }

@@ -1,6 +1,7 @@
-/* Archivo documentado: Pantalla de acceso al sistema. Permite elegir el rol y redirige al selector de docente si se elige ese perfil. */
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HouseLogo } from '../components/HouseLogo';
+import { USERS, setRole, setUser } from '../roleConfig';
 
 function RoleIcon({ kind }) {
   if (kind === 'docente') {
@@ -28,15 +29,19 @@ function RoleIcon({ kind }) {
 export function Login() {
   const navigate = useNavigate();
 
-  const selectRole = (role) => {
-    localStorage.setItem('rol', role);
-    if (role === 'docente') {
-      // Docente goes to the sub-selector to pick which teacher
-      navigate('/docente-selector');
-    } else {
-      navigate('/dashboard');
-    }
+  const [selectedRole, setSelectedRole] = useState(null);
+
+  const handleSelectRole = (role) => {
+    setSelectedRole(role);
   };
+
+  const handleSelectUser = (user) => {
+    setRole(selectedRole);
+    setUser(user);
+    navigate('/dashboard');
+  };
+
+  const users = selectedRole ? USERS[selectedRole] : [];
 
   return (
     <div className="login-page">
@@ -45,42 +50,91 @@ export function Login() {
           <div className="hero-icon">
             <HouseLogo />
           </div>
+
           <h1>Sistema de Vigilancia Docente</h1>
           <p>Colegio San José · Gestión de Supervisión Escolar</p>
         </div>
 
-        <div className="role-selector">
-          <div className="section-heading">
-            <h2>Selecciona tu rol</h2>
-            <p>Elige cómo quieres acceder al sistema.</p>
+        {!selectedRole ? (
+          <div className="role-selector">
+            <div className="section-heading">
+              <h2>Selecciona tu rol</h2>
+              <p>Elige cómo quieres acceder al sistema.</p>
+            </div>
+
+            <div className="role-grid">
+              <button
+                type="button"
+                className="role-card green"
+                onClick={() => handleSelectRole('coordinador')}
+              >
+                <div className="role-icon">
+                  <RoleIcon kind="coordinador" />
+                </div>
+                <span>Coordinador</span>
+                <small>Gestión completa del sistema</small>
+              </button>
+
+              <button
+                type="button"
+                className="role-card blue"
+                onClick={() => handleSelectRole('docente')}
+              >
+                <div className="role-icon">
+                  <RoleIcon kind="docente" />
+                </div>
+                <span>Docente</span>
+                <small>Check-in, recorridos y reportes</small>
+              </button>
+
+              <button
+                type="button"
+                className="role-card purple"
+                onClick={() => handleSelectRole('administrador')}
+              >
+                <div className="role-icon">
+                  <RoleIcon kind="administrador" />
+                </div>
+                <span>Administrador</span>
+                <small>Usuarios, zonas y configuración</small>
+              </button>
+            </div>
           </div>
+        ) : (
+          <div className="role-selector">
+            <div className="section-heading">
+              <h2>Selecciona tu perfil</h2>
+              <p>Escoge la cuenta con la que ingresarás.</p>
+            </div>
 
-          <div className="role-grid">
-            <button type="button" className="role-card green" onClick={() => selectRole('coordinador')}>
-              <div className="role-icon">
-                <RoleIcon kind="coordinador" />
-              </div>
-              <span>Coordinador</span>
-              <small>Gestión completa del sistema</small>
-            </button>
+            <div className="role-grid">
+              {users.map((user) => (
+                <button
+                  key={user.id}
+                  type="button"
+                  className="role-card blue"
+                  onClick={() => handleSelectUser(user)}
+                >
+                  <div className="role-icon">
+                    <RoleIcon kind={selectedRole} />
+                  </div>
 
-            <button type="button" className="role-card blue" onClick={() => selectRole('docente')}>
-              <div className="role-icon">
-                <RoleIcon kind="docente" />
-              </div>
-              <span>Docente</span>
-              <small>Check-in, recorridos y reportes</small>
-            </button>
+                  <span>{user.nombre}</span>
+                  <small>{user.email}</small>
+                </button>
+              ))}
+            </div>
 
-            <button type="button" className="role-card purple" onClick={() => selectRole('administrador')}>
-              <div className="role-icon">
-                <RoleIcon kind="administrador" />
-              </div>
-              <span>Administrador</span>
-              <small>Usuarios, zonas y configuración</small>
-            </button>
+            <div style={{ marginTop: '18px' }}>
+              <button
+                className="ghost-button"
+                onClick={() => setSelectedRole(null)}
+              >
+                Volver
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

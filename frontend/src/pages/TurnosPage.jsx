@@ -11,10 +11,6 @@ export function TurnosPage() {
   const role = getRole();
   const docenteId = getDocenteId();
 
-  /* ======================
-     COLUMNAS
-  ====================== */
-
   const columns = [
     {
       key: 'docenteNombre',
@@ -56,19 +52,11 @@ export function TurnosPage() {
     },
   ];
 
-  /* ======================
-     FILTRO DOCENTE
-  ====================== */
-
   const filterFn = useCallback(
     (data) =>
       docenteId ? data.filter((t) => t.docenteId === docenteId) : data,
     [docenteId]
   );
-
-  /* ======================
-     CHECK-IN
-  ====================== */
 
   const handleCheckIn = useCallback(async (turno, reload) => {
     const now = new Date().toISOString().slice(0, 16);
