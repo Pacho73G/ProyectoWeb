@@ -1,4 +1,3 @@
-/* Archivo documentado: Pantalla de incidentes. Para el rol docente filtra únicamente los incidentes que él registró. */
 import { useCallback } from 'react';
 import { Badge } from '../components/Badge';
 import { CrudPage } from './CrudPage';
@@ -21,7 +20,11 @@ export function IncidentesPage() {
         </div>
       ),
     },
-    { key: 'severidad', label: 'Severidad', render: (row) => <Badge value={row.severidad} /> },
+    {
+      key: 'severidad',
+      label: 'Severidad',
+      render: (row) => <Badge value={row.severidad} />,
+    },
     {
       key: 'docenteNombre',
       label: 'Docente',
@@ -38,15 +41,22 @@ export function IncidentesPage() {
       render: (row) => (
         <div className="table-main">
           <strong>{row.zonaNombre}</strong>
-          <small>{row.requiereSeguimiento ? 'Requiere seguimiento' : 'Sin seguimiento'}</small>
+          <small>
+            {row.requiereSeguimiento
+              ? 'Requiere seguimiento'
+              : 'Sin seguimiento'}
+          </small>
         </div>
       ),
     },
   ];
 
   const filterFn = useCallback(
-    (data) => (docenteId ? data.filter((i) => i.docenteId === docenteId) : data),
-    [docenteId],
+    (data) =>
+      docenteId
+        ? data.filter((i) => Number(i.docenteId) === Number(docenteId))
+        : data,
+    [docenteId]
   );
 
   return (
@@ -57,8 +67,16 @@ export function IncidentesPage() {
           ? 'Documenta lo ocurrido con severidad, zona y contexto en una sola vista.'
           : 'Consulta eventos reportados y detecta zonas o situaciones que requieren seguimiento.'
       }
-      introTitle={role === 'docente' ? 'Registro rápido de incidentes' : 'Historial operativo de incidentes'}
-      toolbarNote={role === 'docente' ? 'Registro ágil de situaciones durante el turno.' : 'Historial de incidentes reportados.'}
+      introTitle={
+        role === 'docente'
+          ? 'Registro rápido de incidentes'
+          : 'Historial operativo de incidentes'
+      }
+      toolbarNote={
+        role === 'docente'
+          ? 'Registro ágil de situaciones durante el turno.'
+          : 'Historial de incidentes reportados.'
+      }
       createLabel="Nuevo incidente"
       fetchFn={getIncidentes}
       deleteFn={deleteIncidente}

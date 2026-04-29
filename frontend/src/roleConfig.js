@@ -22,42 +22,7 @@ export const ROLE_INITIALS = {
   administrador: 'AD',
 };
 
-
-export const USERS = {
-  administrador: [
-    {
-      id: 1,
-      nombre: 'Laura Admin',
-      email: 'laura.admin@colegio.edu',
-    },
-  ],
-
-  coordinador: [
-    {
-      id: 2,
-      nombre: 'Ana Coordinadora',
-      email: 'ana.coord@colegio.edu',
-    },
-  ],
-
-  docente: [
-    {
-      id: 3,
-      nombre: 'Carlos Rodríguez',
-      email: 'carlos@colegio.edu',
-    },
-    {
-      id: 4,
-      nombre: 'María López',
-      email: 'maria@colegio.edu',
-    },
-    {
-      id: 5,
-      nombre: 'Juan Pérez',
-      email: 'juan@colegio.edu',
-    },
-  ],
-};
+export const USERS = {};
 
 export const NAV_ITEMS = {
   coordinador: [
@@ -136,10 +101,18 @@ export function setUser(user) {
   localStorage.setItem('userNombre', user.nombre);
   localStorage.setItem('userEmail', user.email);
 
-  if (getRole() === 'docente') {
+  // Siempre guardar docenteId si el usuario es docente
+  if (
+    user.rol?.toUpperCase() === 'DOCENTE' ||
+    getRole() === 'docente'
+  ) {
     localStorage.setItem('docenteId', user.id);
     localStorage.setItem('docenteNombre', user.nombre);
     localStorage.setItem('docenteEmail', user.email);
+  } else {
+    localStorage.removeItem('docenteId');
+    localStorage.removeItem('docenteNombre');
+    localStorage.removeItem('docenteEmail');
   }
 }
 

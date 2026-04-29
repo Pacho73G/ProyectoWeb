@@ -5,7 +5,8 @@ import { CrudPage } from './CrudPage';
 import { getTurnos, deleteTurno, updateTurno } from '../api/turno.api';
 import { createCheckIn } from '../api/checkin.api';
 import { TurnoForm } from './forms/TurnoForm';
-import { getRole, getDocenteId } from '../roleConfig';
+import {getRole,getDocenteId,getUserId,getUserNombre} from '../roleConfig';
+import { pushNotification } from '../api/notificacion.api';
 
 export function TurnosPage() {
   const role = getRole();
@@ -58,67 +59,105 @@ export function TurnosPage() {
     [docenteId]
   );
 
-  const handleCheckIn = useCallback(async (turno, reload) => {
-    const now = new Date().toISOString().slice(0, 16);
+const handleCheckIn = useCallback(async (turno, reload) => {
+  const now = new Date().toISOString().slice(0, 16);
 
-    try {
-      await createCheckIn({
-        turnoId: turno.id,
-        docenteId: turno.docenteId,
-        zonaId: turno.zonaId,
-        timestamp: now,
-        metodo: 'PIN',
-        evidencia: 'CHECK_IN_DOCENTE',
-        valido: true,
-      });
+  try {
+    await createCheckIn({
+      turnoId: turno.id,
+      docenteId: turno.docenteId,
+      zonaId: turno.zonaId,
+      timestamp: now,
+      metodo: 'PIN',
+      evidencia: 'CHECK_IN_DOCENTE',
+      valido: true,
+    });
 
-      await updateTurno(turno.id, {
-        docenteId: turno.docenteId,
-        zonaId: turno.zonaId,
-        fecha: turno.fecha,
-        horaInicio: turno.horaInicio,
-        horaFin: turno.horaFin,
-        franja: turno.franja,
-        estado: 'EN_CURSO',
-        abiertoEn: now,
-        cerradoEn: null,
-      });
+    await updateTurno(turno.id, {
+      docenteId: turno.docenteId,
+      zonaId: turno.zonaId,
+      fecha: turno.fecha,
+      horaInicio: turno.horaInicio,
+      horaFin: turno.horaFin,
+      franja: turno.franja,
+      estado: 'EN_CURSO',
+      abiertoEn: now,
+      cerradoEn: null,
+    });
 
-      reload();
-    } catch (e) {
-      alert('Error al registrar check-in: ' + e.message);
-    }
-  }, []);
+    const nombre = getUserNombre();
+
+    pushNotification({
+      role: 'docente',
+      userId: getUserId(),
+      titulo: 'Check-in realizado',
+      mensaje: `Has iniciado el turno ${turno.franja}`,
+    });
+
+    pushNotification({
+      role: 'administrador',
+      titulo: 'Nuevo check-in',
+      mensaje: `${nombre} inició el turno ${turno.franja}`,
+    });
+
+    pushNotification({
+      role: 'coordinador',
+      titulo: 'Turno iniciado',
+      mensaje: `${nombre} inició el turno ${turno.franja}`,
+    });
+
+    reload();
+  } catch (e) {
+    alert('Error al iniciar turno: ' + e.message);
+  }
+}, []);
 
   /* ======================
      CHECK-OUT CORREGIDO
   ====================== */
 
   const handleCheckOut = useCallback(async (turno, reload) => {
-    const now = new Date().toISOString().slice(0, 16);
+  const now = new Date().toISOString().slice(0, 16);
 
-    try {
-      // IMPORTANTE:
-      // Ya no se crea otro check-in.
-      // Solo se cierra el turno.
+  try {
+    await updateTurno(turno.id, {
+      docenteId: turno.docenteId,
+      zonaId: turno.zonaId,
+      fecha: turno.fecha,
+      horaInicio: turno.horaInicio,
+      horaFin: turno.horaFin,
+      franja: turno.franja,
+      estado: 'CERRADO',
+      abiertoEn: turno.abiertoEn || null,
+      cerradoEn: now,
+    });
 
-      await updateTurno(turno.id, {
-        docenteId: turno.docenteId,
-        zonaId: turno.zonaId,
-        fecha: turno.fecha,
-        horaInicio: turno.horaInicio,
-        horaFin: turno.horaFin,
-        franja: turno.franja,
-        estado: 'CERRADO',
-        abiertoEn: turno.abiertoEn || null,
-        cerradoEn: now,
-      });
+    const nombre = getUserNombre();
 
-      reload();
-    } catch (e) {
-      alert('Error al finalizar turno: ' + e.message);
-    }
-  }, []);
+    pushNotification({
+      role: 'docente',
+      userId: getUserId(),
+      titulo: 'Turno finalizado',
+      mensaje: `Has finalizado el turno ${turno.franja}`,
+    });
+
+    pushNotification({
+      role: 'administrador',
+      titulo: 'Turno finalizado',
+      mensaje: `${nombre} cerró el turno ${turno.franja}`,
+    });
+
+    pushNotification({
+      role: 'coordinador',
+      titulo: 'Turno cerrado',
+      mensaje: `${nombre} finalizó el turno ${turno.franja}`,
+    });
+
+    reload();
+  } catch (e) {
+    alert('Error al finalizar turno: ' + e.message);
+  }
+}, []);
 
   /* ======================
      ACCIONES EXTRA

@@ -52,7 +52,16 @@ export function FormField({ field, value, error, onChange, options = [], disable
           type={field.type ?? 'text'}
           value={value ?? ''}
           placeholder={field.placeholder}
-          min={field.min}
+          min={
+          field.min ??
+            (
+            field.type === 'date'
+            ? new Date().toISOString().split('T')[0]
+            : field.type === 'datetime-local'
+            ? new Date().toISOString().slice(0, 16)
+            : undefined
+            )
+          }
           max={field.max}
           step={field.step}
           disabled={disabled || field.disabled}

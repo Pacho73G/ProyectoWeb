@@ -9,7 +9,7 @@ export function TurnoForm({ turno, onSave, onCancel }) {
   const fields = [
     { name: 'docenteId', label: 'Docente', type: 'select', required: true, loader: 'docentes', optionLabel: (item) => item.nombre },
     { name: 'zonaId', label: 'Zona', type: 'select', required: true, loader: 'zonas', optionLabel: (item) => item.nombre },
-    { name: 'fecha', label: 'Fecha', type: 'date', required: true },
+    {name: 'fecha',label: 'Fecha',type: 'date',required: true,min: new Date().toISOString().split('T')[0]},
     { name: 'franja', label: 'Franja o nombre del turno', type: 'text', required: true },
     { name: 'horaInicio', label: 'Hora inicio', type: 'time', required: true },
     { name: 'horaFin', label: 'Hora fin', type: 'time', required: true },

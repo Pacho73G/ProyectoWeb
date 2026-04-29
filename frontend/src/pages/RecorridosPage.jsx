@@ -1,4 +1,3 @@
-/* Archivo documentado: Pantalla de recorridos. Para el rol docente filtra únicamente sus propios recorridos. */
 import { useCallback } from 'react';
 import { CrudPage } from './CrudPage';
 import { getRecorridos, deleteRecorrido } from '../api/recorrido.api';
@@ -18,8 +17,11 @@ export function RecorridosPage() {
   ];
 
   const filterFn = useCallback(
-    (data) => (docenteId ? data.filter((r) => r.docenteId === docenteId) : data),
-    [docenteId],
+    (data) =>
+      docenteId
+        ? data.filter((r) => r.docenteId === docenteId)
+        : data,
+    [docenteId]
   );
 
   return (
