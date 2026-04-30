@@ -1,12 +1,14 @@
-/* Archivo documentado: Pantalla principal de la SPA. Consume la API y presenta una vista funcional del módulo correspondiente. */
+import { useCallback } from 'react';
 import { Badge } from '../components/Badge';
 import { CrudPage } from './CrudPage';
 import { getIncidentes, deleteIncidente } from '../api/incidente.api';
 import { IncidenteForm } from './forms/IncidenteForm';
-import { getRole } from '../roleConfig';
+import { getRole, getDocenteId } from '../roleConfig';
 
 export function IncidentesPage() {
   const role = getRole();
+  const docenteId = getDocenteId();
+
   const columns = [
     {
       key: 'tipo',
@@ -18,7 +20,11 @@ export function IncidentesPage() {
         </div>
       ),
     },
-    { key: 'severidad', label: 'Severidad', render: (row) => <Badge value={row.severidad} /> },
+    {
+      key: 'severidad',
+      label: 'Severidad',
+      render: (row) => <Badge value={row.severidad} />,
+    },
     {
       key: 'docenteNombre',
       label: 'Docente',
@@ -35,11 +41,19 @@ export function IncidentesPage() {
       render: (row) => (
         <div className="table-main">
           <strong>{row.zonaNombre}</strong>
-          <small>{row.requiereSeguimiento ? 'Requiere seguimiento' : 'Sin seguimiento'}</small>
+          <small>{row.turnoFranja ? `Turno ${row.turnoFranja}` : 'Reporte fuera de turno'}</small>
         </div>
       ),
     },
   ];
+
+  const filterFn = useCallback(
+    (data) =>
+      docenteId
+        ? data.filter((i) => Number(i.docenteId) === Number(docenteId))
+        : data,
+    [docenteId]
+  );
 
   return (
     <CrudPage
@@ -49,11 +63,20 @@ export function IncidentesPage() {
           ? 'Documenta lo ocurrido con severidad, zona y contexto en una sola vista.'
           : 'Consulta eventos reportados y detecta zonas o situaciones que requieren seguimiento.'
       }
-      introTitle={role === 'docente' ? 'Registro rápido de incidentes' : 'Historial operativo de incidentes'}
-      toolbarNote={role === 'docente' ? 'Registro ágil de situaciones durante el turno.' : 'Historial de incidentes reportados.'}
+      introTitle={
+        role === 'docente'
+          ? 'Registro rápido de incidentes'
+          : 'Historial operativo de incidentes'
+      }
+      toolbarNote={
+        role === 'docente'
+          ? 'Registro ágil de situaciones durante el turno.'
+          : 'Historial de incidentes reportados.'
+      }
       createLabel="Nuevo incidente"
       fetchFn={getIncidentes}
       deleteFn={deleteIncidente}
+      filterFn={role === 'docente' ? filterFn : undefined}
       columns={columns}
       FormComponent={IncidenteForm}
       formPropName="incidente"

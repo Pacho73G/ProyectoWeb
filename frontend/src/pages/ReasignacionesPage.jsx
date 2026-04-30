@@ -1,12 +1,24 @@
-/* Archivo documentado: Pantalla principal de la SPA. Consume la API y presenta una vista funcional del módulo correspondiente. */
+
+import { useCallback } from 'react';
 import { Badge } from '../components/Badge';
 import { CrudPage } from './CrudPage';
-import { getReasignaciones, deleteReasignacion } from '../api/reasignacion.api';
+import {
+  getReasignaciones,
+  deleteReasignacion,
+  updateReasignacion,
+} from '../api/reasignacion.api';
 import { ReasignacionForm } from './forms/ReasignacionForm';
-import { getRole } from '../roleConfig';
+import {
+  getRole,
+  getDocenteId,
+  getUserId,
+} from '../roleConfig';
 
 export function ReasignacionesPage() {
   const role = getRole();
+  const docenteId = getDocenteId();
+  const userId = getUserId();
+
   const columns = [
     {
       key: 'turnoFranja',
@@ -34,12 +46,67 @@ export function ReasignacionesPage() {
       render: (row) => (
         <div className="table-main">
           <strong>{row.docenteReemplazoNombre || 'Pendiente'}</strong>
-          <small>{row.docenteReemplazoNombre ? 'Candidato asignado' : 'Esperando respuesta'}</small>
+          <small>
+            {row.docenteReemplazoNombre
+              ? 'Candidato asignado'
+              : 'Esperando respuesta'}
+          </small>
         </div>
       ),
     },
-    { key: 'estado', label: 'Estado', render: (row) => <Badge value={row.estado} /> },
+    {
+      key: 'estado',
+      label: 'Estado',
+      render: (row) => <Badge value={row.estado} />,
+    },
   ];
+
+  const filterFn = useCallback(
+    (data) =>
+      docenteId
+        ? data.filter(
+            (r) =>
+              Number(r.docenteSolicitanteId) === Number(docenteId) ||
+              Number(r.docenteReemplazoId) === Number(docenteId)
+          )
+        : data,
+    [docenteId]
+  );
+
+  const responder = async (row, estado, reload) => {
+    const now = new Date().toISOString().slice(0, 16);
+
+    await updateReasignacion(row.id, {
+      ...row,
+      estado,
+      respondidaEn: now,
+    });
+
+    reload();
+  };
+
+  const extraRowActions =
+    role === 'docente'
+      ? (row, reload) =>
+          Number(row.docenteReemplazoId) === Number(userId) &&
+          row.estado === 'PENDIENTE' ? (
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                className="action-button"
+                onClick={() => responder(row, 'ACEPTADA', reload)}
+              >
+                Aceptar
+              </button>
+
+              <button
+                className="action-button danger"
+                onClick={() => responder(row, 'RECHAZADA', reload)}
+              >
+                Rechazar
+              </button>
+            </div>
+          ) : null
+      : undefined;
 
   return (
     <CrudPage
@@ -49,16 +116,26 @@ export function ReasignacionesPage() {
           ? 'Visualiza quién pidió apoyo, el reemplazo propuesto y el estado de respuesta del turno.'
           : 'Consulta tus solicitudes y el avance de cada propuesta de reemplazo.'
       }
-      introTitle={role === 'coordinador' ? 'Gestión de cobertura y reemplazos' : 'Solicitudes de reasignación'}
-      toolbarNote={role === 'coordinador' ? 'Gestión operativa de reasignaciones.' : 'Solicitudes de reasignación por impedimento.'}
+      introTitle={
+        role === 'coordinador'
+          ? 'Gestión de cobertura y reemplazos'
+          : 'Solicitudes de reasignación'
+      }
+      toolbarNote={
+        role === 'coordinador'
+          ? 'Gestión operativa de reasignaciones.'
+          : 'Solicitudes de reasignación por impedimento.'
+      }
       createLabel="Nueva reasignación"
       fetchFn={getReasignaciones}
       deleteFn={deleteReasignacion}
+      filterFn={role === 'docente' ? filterFn : undefined}
       columns={columns}
       FormComponent={ReasignacionForm}
       formPropName="reasignacion"
       deleteMessage="¿Eliminar esta reasignación? Esta acción no se puede deshacer."
       resource="reasignaciones"
+      extraRowActions={extraRowActions}
     />
   );
 }

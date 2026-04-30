@@ -10,6 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -28,9 +29,17 @@ public class RegistroLimpieza {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "turno_id", nullable = false, unique = true)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "turno_id", unique = true)
     private Turno turno;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "docente_id", nullable = false)
+    private Docente docente;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "zona_id", nullable = false)
+    private Zona zona;
 
     @Column(name = "escala", nullable = false)
     private Integer escala;
@@ -38,6 +47,12 @@ public class RegistroLimpieza {
     @Column(name = "observaciones", nullable = false)
     private String observaciones;
 
+    @Column(name = "asignada_en", nullable = false)
+    private LocalDateTime asignadaEn;
+
     @Column(name = "registrado_en", nullable = false)
     private LocalDateTime registradoEn;
+
+    @Column(name = "completada", nullable = false)
+    private Boolean completada = false;
 }

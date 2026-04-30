@@ -1,37 +1,50 @@
-/* Archivo documentado: Pantalla principal de la SPA. Consume la API y presenta una vista funcional del módulo correspondiente. */
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HouseLogo } from '../components/HouseLogo';
+import { setRole, setUser } from '../roleConfig';
+import { getUsuarios } from '../api/usuario.api';
 
 function RoleIcon({ kind }) {
-  if (kind === 'docente') {
-    return (
-      <svg viewBox="0 0 64 64" aria-hidden="true">
-        <path d="M12 26 32 16l20 10-20 10z" fill="none" stroke="currentColor" strokeWidth="4" strokeLinejoin="round" />
-        <path d="M20 32v8c0 3 6 6 12 6s12-3 12-6v-8" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M52 26v12" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
-      </svg>
-    );
-  }
-
-  if (kind === 'administrador') {
-    return (
-      <svg viewBox="0 0 64 64" aria-hidden="true">
-        <circle cx="32" cy="22" r="8" fill="none" stroke="currentColor" strokeWidth="4" />
-        <path d="M20 48c0-7 5-12 12-12s12 5 12 12" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
-      </svg>
-    );
-  }
-
+  if (kind === 'docente') return <HouseLogo />;
+  if (kind === 'administrador') return <HouseLogo />;
   return <HouseLogo />;
 }
 
 export function Login() {
   const navigate = useNavigate();
 
-  const selectRole = (role) => {
-    localStorage.setItem('rol', role);
-    navigate('/dashboard');
-  };
+  const [selectedRole, setSelectedRole] = useState(null);
+  const [usuarios, setUsuarios] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    loadUsuarios();
+  }, []);
+
+  async function loadUsuarios() {
+    try {
+      setLoading(true);
+      const data = await getUsuarios();
+      setUsuarios(data.filter((u) => u.activo));
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const handleSelectUser = (user) => {
+  localStorage.clear(); // limpia usuario anterior
+
+  setRole(selectedRole);
+  setUser(user);
+
+  navigate('/dashboard');
+};
+
+  const users = usuarios.filter(
+    (u) => u.rol?.toLowerCase() === selectedRole
+  );
 
   return (
     <div className="login-page">
@@ -40,42 +53,72 @@ export function Login() {
           <div className="hero-icon">
             <HouseLogo />
           </div>
+
           <h1>Sistema de Vigilancia Docente</h1>
           <p>Colegio San José · Gestión de Supervisión Escolar</p>
         </div>
 
-        <div className="role-selector">
-          <div className="section-heading">
-            <h2>Selecciona tu rol</h2>
-            <p>Elige cómo quieres acceder al sistema.</p>
+        {!selectedRole ? (
+          <div className="role-selector">
+            <div className="section-heading">
+              <h2>Selecciona tu rol</h2>
+              <p>Elige cómo quieres acceder al sistema.</p>
+            </div>
+
+            <div className="role-grid">
+              <button className="role-card green" onClick={() => setSelectedRole('coordinador')}>
+                <div className="role-icon"><RoleIcon kind="coordinador" /></div>
+                <span>Coordinador</span>
+              </button>
+
+              <button className="role-card blue" onClick={() => setSelectedRole('docente')}>
+                <div className="role-icon"><RoleIcon kind="docente" /></div>
+                <span>Docente</span>
+              </button>
+
+              <button className="role-card purple" onClick={() => setSelectedRole('administrador')}>
+                <div className="role-icon"><RoleIcon kind="administrador" /></div>
+                <span>Administrador</span>
+              </button>
+            </div>
           </div>
+        ) : (
+          <div className="role-selector">
+            <div className="section-heading">
+              <h2>Selecciona tu perfil</h2>
+            </div>
 
-          <div className="role-grid">
-            <button type="button" className="role-card green" onClick={() => selectRole('coordinador')}>
-              <div className="role-icon">
-                <RoleIcon kind="coordinador" />
-              </div>
-              <span>Coordinador</span>
-              <small>Gestión completa del sistema</small>
-            </button>
+            {loading ? (
+              <p>Cargando...</p>
+            ) : (
+              <div className="role-grid">
+                {users.map((user) => (
+                  <button
+                    key={user.id}
+                    className="role-card blue"
+                    onClick={() => handleSelectUser(user)}
+                  >
+                    <div className="role-icon">
+                      <RoleIcon kind={selectedRole} />
+                    </div>
 
-            <button type="button" className="role-card blue" onClick={() => selectRole('docente')}>
-              <div className="role-icon">
-                <RoleIcon kind="docente" />
+                    <span>{user.nombre}</span>
+                    <small>{user.email}</small>
+                  </button>
+                ))}
               </div>
-              <span>Docente</span>
-              <small>Check-in, recorridos y reportes</small>
-            </button>
+            )}
 
-            <button type="button" className="role-card purple" onClick={() => selectRole('administrador')}>
-              <div className="role-icon">
-                <RoleIcon kind="administrador" />
-              </div>
-              <span>Administrador</span>
-              <small>Usuarios, zonas y configuración</small>
-            </button>
+            <div style={{ marginTop: '18px' }}>
+              <button
+                className="ghost-button"
+                onClick={() => setSelectedRole(null)}
+              >
+                Volver
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-/* Archivo documentado: Carga datos semilla cuando la aplicación inicia y la base aún está vacía. Permite probar la SPA y la API sin crear registros manualmente. */
+/* Archivo documentado: Carga datos semilla cuando la aplicación inicia y la base aún está vacía. */
 package com.example.demo.config;
 
 import java.time.LocalDate;
@@ -35,23 +35,26 @@ import com.example.demo.model.TipoReconocimiento;
 import com.example.demo.model.Turno;
 import com.example.demo.model.Zona;
 import com.example.demo.service.SistemaService;
+
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
 @ConditionalOnProperty(name = "app.seed.enabled", havingValue = "true", matchIfMissing = true)
-/**
- * Carga datos semilla solo cuando la base está vacía.
- * Se usa como batch inicial para la primera entrega.
- */
 public class DataLoader implements CommandLineRunner {
 
     private final SistemaService sistemaService;
 
     @Override
     public void run(String... args) {
-        // Evita duplicar la carga semilla cuando la base ya tiene información.
-        if (sistemaService.totalDocentes() > 0) {
+
+        try {
+            if (sistemaService.totalDocentes() > 0) {
+                System.out.println("Base con datos existentes. Seed cancelado.");
+                return;
+            }
+        } catch (Exception e) {
+            System.out.println("No se pudo validar usuarios. Seed cancelado.");
             return;
         }
 
@@ -131,14 +134,20 @@ public class DataLoader implements CommandLineRunner {
 
         RegistroLimpieza limpieza = new RegistroLimpieza();
         limpieza.setTurno(turno1);
+        limpieza.setDocente(docente1);
+        limpieza.setZona(patio);
         limpieza.setEscala(4);
         limpieza.setObservaciones("Zona entregada en buen estado.");
+        limpieza.setAsignadaEn(LocalDateTime.now().minusMinutes(25));
         limpieza.setRegistradoEn(LocalDateTime.now().minusMinutes(5));
+        limpieza.setCompletada(true);
         sistemaService.guardar(limpieza);
 
         Notificacion notificacion = new Notificacion();
         notificacion.setTurno(turno3);
+        notificacion.setDestinatario(docente3);
         notificacion.setTipo(TipoNotificacion.RECORDATORIO_10MIN);
+        notificacion.setTitulo("Recordatorio de turno");
         notificacion.setMensaje("Tu turno de almuerzo bachillerato inicia en 10 minutos.");
         notificacion.setEnviadaEn(LocalDateTime.now().minusMinutes(1));
         notificacion.setLeida(false);
@@ -193,6 +202,8 @@ public class DataLoader implements CommandLineRunner {
         reconocimiento.setOtorgadoEn(LocalDate.now());
         reconocimiento.setTrimestre("2026-T1");
         sistemaService.guardar(reconocimiento);
+
+        System.out.println("Datos semilla cargados correctamente.");
     }
 
     private Docente docente(String nombre, String email, String materias, int carga, int puntaje) {
@@ -217,7 +228,8 @@ public class DataLoader implements CommandLineRunner {
         return sistemaService.guardar(zona);
     }
 
-    private Turno turno(Docente docente, Zona zona, LocalDate fecha, String franja, String inicio, String fin, EstadoTurno estado) {
+    private Turno turno(Docente docente, Zona zona, LocalDate fecha, String franja,
+                        String inicio, String fin, EstadoTurno estado) {
         Turno turno = new Turno();
         turno.setDocente(docente);
         turno.setZona(zona);
@@ -226,7 +238,6 @@ public class DataLoader implements CommandLineRunner {
         turno.setHoraInicio(LocalTime.parse(inicio));
         turno.setHoraFin(LocalTime.parse(fin));
         turno.setEstado(estado);
-        // Se deja una marca de apertura para que el dashboard muestre datos operativos desde el arranque.
         turno.setAbiertoEn(LocalDateTime.now().minusMinutes(30));
         return sistemaService.guardar(turno);
     }

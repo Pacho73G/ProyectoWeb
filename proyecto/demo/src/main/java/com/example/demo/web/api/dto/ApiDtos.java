@@ -32,6 +32,7 @@ public final class ApiDtos {
     public record IncidenteDto(
             Long id,
             Long turnoId,
+            String turnoFranja,
             Long docenteId,
             String docenteNombre,
             Long zonaId,
@@ -78,16 +79,25 @@ public final class ApiDtos {
             Long id,
             Long turnoId,
             String turnoFranja,
+            Long docenteId,
+            String docenteNombre,
+            Long zonaId,
+            String zonaNombre,
             Integer escala,
             String observaciones,
-            String registradoEn
+            String asignadaEn,
+            String registradoEn,
+            Boolean completada
     ) {}
 
     public record NotificacionDto(
             Long id,
             Long turnoId,
             String turnoFranja,
+            Long destinatarioId,
+            String destinatarioNombre,
             String tipo,
+            String titulo,
             String mensaje,
             String enviadaEn,
             Boolean leida,

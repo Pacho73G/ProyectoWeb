@@ -11,11 +11,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.service.CatalogQueryService;
+import com.example.demo.service.NotificacionManagementService;
 import com.example.demo.service.OperacionManagementService;
 import com.example.demo.web.api.dto.ApiDtos.CheckInDto;
 import com.example.demo.web.api.dto.ApiDtos.IncidenteDto;
@@ -36,10 +38,13 @@ public class OperacionApiController {
 
     private final CatalogQueryService catalogQueryService;
     private final OperacionManagementService operacionManagementService;
+    private final NotificacionManagementService notificacionManagementService;
 
-    public OperacionApiController(CatalogQueryService catalogQueryService, OperacionManagementService operacionManagementService) {
+    public OperacionApiController(CatalogQueryService catalogQueryService, OperacionManagementService operacionManagementService,
+                                  NotificacionManagementService notificacionManagementService) {
         this.catalogQueryService = catalogQueryService;
         this.operacionManagementService = operacionManagementService;
+        this.notificacionManagementService = notificacionManagementService;
     }
 
     @GetMapping("/checkins")
@@ -82,8 +87,12 @@ public class OperacionApiController {
 
     @PostMapping("/incidentes")
     public ResponseEntity<IncidenteDto> crearIncidente(@RequestBody IncidenteRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiMapper.toDto(operacionManagementService.guardar(ApiMapper.apply(request, new com.example.demo.model.Incidente(), catalogQueryService))));
+        com.example.demo.model.Incidente incidente = operacionManagementService.guardar(
+                ApiMapper.apply(request, new com.example.demo.model.Incidente(), catalogQueryService)
+        );
+        // La notificación se dispara después de persistir para garantizar IDs y relaciones válidas.
+        notificacionManagementService.notificarIncidente(incidente);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiMapper.toDto(incidente));
     }
 
     @PutMapping("/incidentes/{id}")
@@ -110,13 +119,22 @@ public class OperacionApiController {
 
     @PostMapping("/reasignaciones")
     public ResponseEntity<ReasignacionDto> crearReasignacion(@RequestBody ReasignacionRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiMapper.toDto(operacionManagementService.guardar(ApiMapper.apply(request, new com.example.demo.model.Reasignacion(), catalogQueryService))));
+        com.example.demo.model.Reasignacion reasignacion = operacionManagementService.guardar(
+                ApiMapper.apply(request, new com.example.demo.model.Reasignacion(), catalogQueryService)
+        );
+        notificacionManagementService.notificarReasignacion(reasignacion);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiMapper.toDto(reasignacion));
     }
 
     @PutMapping("/reasignaciones/{id}")
     public ResponseEntity<ReasignacionDto> actualizarReasignacion(@PathVariable Long id, @RequestBody ReasignacionRequest request) {
-        return ResponseEntity.ok(ApiMapper.toDto(operacionManagementService.guardar(ApiMapper.apply(request, catalogQueryService.reasignacion(id), catalogQueryService))));
+        com.example.demo.model.Reasignacion reasignacion = catalogQueryService.reasignacion(id);
+        com.example.demo.model.EstadoReasignacion estadoAnterior = reasignacion.getEstado();
+        reasignacion = operacionManagementService.guardar(ApiMapper.apply(request, reasignacion, catalogQueryService));
+        if (estadoAnterior != reasignacion.getEstado()) {
+            notificacionManagementService.notificarRespuestaReasignacion(reasignacion);
+        }
+        return ResponseEntity.ok(ApiMapper.toDto(reasignacion));
     }
 
     @DeleteMapping("/reasignaciones/{id}")
@@ -138,8 +156,12 @@ public class OperacionApiController {
 
     @PostMapping("/limpiezas")
     public ResponseEntity<LimpiezaDto> crearLimpieza(@RequestBody LimpiezaRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiMapper.toDto(operacionManagementService.guardar(ApiMapper.apply(request, new com.example.demo.model.RegistroLimpieza(), catalogQueryService))));
+        com.example.demo.model.RegistroLimpieza limpieza = operacionManagementService.guardar(
+                ApiMapper.apply(request, new com.example.demo.model.RegistroLimpieza(), catalogQueryService)
+        );
+        // Crear una limpieza desde admin equivale a asignar la tarea al docente seleccionado.
+        notificacionManagementService.notificarAsignacionLimpieza(limpieza);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiMapper.toDto(limpieza));
     }
 
     @PutMapping("/limpiezas/{id}")
@@ -155,8 +177,23 @@ public class OperacionApiController {
     }
 
     @GetMapping("/notificaciones")
-    public ResponseEntity<List<NotificacionDto>> notificaciones() {
-        return ResponseEntity.ok(catalogQueryService.notificaciones().stream().map(ApiMapper::toDto).toList());
+    public ResponseEntity<List<NotificacionDto>> notificaciones(@RequestParam(required = false) Long userId) {
+        // Si llega userId se devuelve el inbox del usuario; si no, se expone el listado global.
+        List<com.example.demo.model.Notificacion> data = userId != null
+                ? notificacionManagementService.notificacionesPorUsuario(userId)
+                : catalogQueryService.notificaciones();
+        return ResponseEntity.ok(data.stream().map(ApiMapper::toDto).toList());
+    }
+
+    @GetMapping("/notificaciones/unread-count")
+    public ResponseEntity<Long> unreadCount(@RequestParam Long userId) {
+        return ResponseEntity.ok(notificacionManagementService.contarNoLeidas(userId));
+    }
+
+    @PutMapping("/notificaciones/mark-read")
+    public ResponseEntity<Void> marcarLeidas(@RequestParam Long userId) {
+        notificacionManagementService.marcarComoLeidas(userId);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/notificaciones/{id}")

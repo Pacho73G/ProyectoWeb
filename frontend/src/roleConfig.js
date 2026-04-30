@@ -1,4 +1,3 @@
-/* Archivo documentado: Configuración central de roles de la interfaz. Define permisos visibles, navegación y etiquetas usadas por la SPA según el perfil activo. */
 export const ROLE_LABELS = {
   coordinador: 'Coordinador',
   docente: 'Docente',
@@ -23,6 +22,8 @@ export const ROLE_INITIALS = {
   administrador: 'AD',
 };
 
+export const USERS = {};
+
 export const NAV_ITEMS = {
   coordinador: [
     { to: '/dashboard', label: 'Dashboard en vivo', icon: 'dashboard' },
@@ -38,6 +39,7 @@ export const NAV_ITEMS = {
     { to: '/reportes', label: 'Reportes', icon: 'report' },
     { to: '/notificaciones', label: 'Notificaciones', icon: 'bell' },
   ],
+
   docente: [
     { to: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
     { to: '/turnos', label: 'Mis turnos', icon: 'calendar' },
@@ -50,6 +52,7 @@ export const NAV_ITEMS = {
     { to: '/metricas', label: 'Mis métricas', icon: 'trophy' },
     { to: '/reconocimientos', label: 'Reconocimientos', icon: 'medal' },
   ],
+
   administrador: [
     { to: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
     { to: '/usuarios', label: 'Usuarios', icon: 'user' },
@@ -59,6 +62,7 @@ export const NAV_ITEMS = {
     { to: '/configuraciones', label: 'Configuración', icon: 'settings' },
     { to: '/incidentes', label: 'Incidentes', icon: 'alert' },
     { to: '/reasignaciones', label: 'Reasignaciones', icon: 'refresh' },
+    { to: '/limpiezas', label: 'Limpieza', icon: 'sparkles' },
     { to: '/metricas', label: 'Métricas', icon: 'trophy' },
     { to: '/mapas-calor', label: 'Mapas de calor', icon: 'map' },
     { to: '/reportes', label: 'Reportes', icon: 'report' },
@@ -84,8 +88,60 @@ const RESOURCE_BY_PATH = {
   '/reportes': 'reportes',
 };
 
+
 export function getRole() {
   return localStorage.getItem('rol') ?? 'coordinador';
+}
+
+export function setRole(role) {
+  localStorage.setItem('rol', role);
+}
+
+export function setUser(user) {
+  localStorage.setItem('userId', user.id);
+  localStorage.setItem('userNombre', user.nombre);
+  localStorage.setItem('userEmail', user.email);
+
+  // Siempre guardar docenteId si el usuario es docente
+  if (
+    user.rol?.toUpperCase() === 'DOCENTE' ||
+    getRole() === 'docente'
+  ) {
+    localStorage.setItem('docenteId', user.id);
+    localStorage.setItem('docenteNombre', user.nombre);
+    localStorage.setItem('docenteEmail', user.email);
+  } else {
+    localStorage.removeItem('docenteId');
+    localStorage.removeItem('docenteNombre');
+    localStorage.removeItem('docenteEmail');
+  }
+}
+
+export function getUserId() {
+  const raw = localStorage.getItem('userId');
+  return raw ? Number(raw) : null;
+}
+
+export function getUserNombre() {
+  return localStorage.getItem('userNombre') ?? null;
+}
+
+export function getUserEmail() {
+  return localStorage.getItem('userEmail') ?? null;
+}
+
+
+export function getDocenteId() {
+  const raw = localStorage.getItem('docenteId');
+  return raw ? Number(raw) : null;
+}
+
+export function getDocenteNombre() {
+  return localStorage.getItem('docenteNombre') ?? null;
+}
+
+export function getDocenteEmail() {
+  return localStorage.getItem('docenteEmail') ?? null;
 }
 
 function managed(action) {
@@ -112,13 +168,18 @@ function allowsAdministrador(resource, action) {
     case 'reconocimientos':
     case 'configuraciones':
       return managed(action);
+
     case 'incidentes':
     case 'reasignaciones':
     case 'recorridos':
     case 'checkins':
-    case 'limpiezas':
     case 'reportes':
       return readOnly(action);
+
+    case 'limpiezas':
+      // El admin administra la asignación completa de limpiezas.
+      return managed(action);
+
     default:
       return false;
   }
@@ -131,13 +192,19 @@ function allowsDocente(resource, action) {
     case 'metricas':
     case 'reconocimientos':
       return readOnly(action);
+
     case 'checkins':
     case 'incidentes':
     case 'recorridos':
-    case 'limpiezas':
       return createOnly(action);
+
+    case 'limpiezas':
+      // El docente no crea asignaciones; solo visualiza y completa las que le asignaron.
+      return ['view', 'edit', 'save'].includes(action);
+
     case 'reasignaciones':
       return ['view', 'create'].includes(action);
+
     default:
       return false;
   }
@@ -154,11 +221,12 @@ function allowsCoordinador(resource, action) {
     case 'notificaciones':
     case 'recorridos':
     case 'reconocimientos':
-      return readOnly(action);
-    case 'reasignaciones':
-      return ['view', 'create', 'edit'].includes(action);
     case 'reportes':
       return readOnly(action);
+
+    case 'reasignaciones':
+      return ['view', 'create', 'edit'].includes(action);
+
     default:
       return false;
   }

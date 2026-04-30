@@ -1,185 +1,576 @@
-/* Archivo documentado: Hoja de estilos de la SPA. Define reglas visuales compartidas o específicas de nivel raíz para la interfaz React. */
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
-  margin-bottom: 24px;
+/* ======================
+   RESET BASE
+====================== */
 
-  &:hover {
-    border-color: var(--accent-border);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
 }
 
-.hero {
+* {
+  box-sizing: border-box;
+}
+
+/* ======================
+   VARIABLES
+====================== */
+
+:root {
+  --sidebar-width: 280px;
+  --sidebar-mobile: 260px;
+  --grad-main: linear-gradient(135deg, #43b36b, #2e8de4);
+  --text-main: #16324f;
+  --text-soft: #6b7a8c;
+  --line-soft: #edf1f6;
+}
+
+/* ======================
+   LAYOUT
+====================== */
+
+.app-shell {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
   position: relative;
-
-  .base,
-  .framework,
-  .vite {
-    inset-inline: 0;
-    margin: 0 auto;
-  }
-
-  .base {
-    width: 170px;
-    position: relative;
-    z-index: 0;
-  }
-
-  .framework,
-  .vite {
-    position: absolute;
-  }
-
-  .framework {
-    z-index: 1;
-    top: 34px;
-    height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
-  }
-
-  .vite {
-    z-index: 0;
-    top: 107px;
-    height: 26px;
-    width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
-  }
 }
 
-#center {
+/* ======================
+   SIDEBAR DESKTOP
+====================== */
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--sidebar-width);
+  height: 100vh;
+  background: #ffffff;
+  border-right: 1px solid #eef2f7;
+
   display: flex;
   flex-direction: column;
-  gap: 25px;
-  place-content: center;
-  place-items: center;
-  flex-grow: 1;
 
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
-  }
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 1000;
+
+  transition: transform 0.3s ease;
 }
 
-#next-steps {
-  display: flex;
-  border-top: 1px solid var(--border);
-  text-align: left;
-
-  & > div {
-    flex: 1 1 0;
-    padding: 32px;
-    @media (max-width: 1024px) {
-      padding: 24px 20px;
-    }
-  }
-
-  .icon {
-    margin-bottom: 16px;
-    width: 22px;
-    height: 22px;
-  }
-
-  @media (max-width: 1024px) {
-    flex-direction: column;
-    text-align: center;
-  }
+/* ABIERTA */
+.sidebar.open {
+  transform: translateX(0);
 }
 
-#docs {
-  border-right: 1px solid var(--border);
-
-  @media (max-width: 1024px) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-  }
+/* CERRADA */
+.sidebar.collapsed {
+  transform: translateX(-100%);
+  border-right: none;
 }
 
-#next-steps ul {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  gap: 8px;
-  margin: 32px 0 0;
+/* ======================
+   CONTENIDO DESKTOP
+====================== */
 
-  .logo {
-    height: 18px;
-  }
-
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
-    display: flex;
-    padding: 6px 12px;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
-
-    &:hover {
-      box-shadow: var(--shadow);
-    }
-    .button-icon {
-      height: 18px;
-      width: 18px;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    margin-top: 20px;
-    flex-wrap: wrap;
-    justify-content: center;
-
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
-
-    a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-  }
-}
-
-#spacer {
-  height: 88px;
-  border-top: 1px solid var(--border);
-  @media (max-width: 1024px) {
-    height: 48px;
-  }
-}
-
-.ticks {
-  position: relative;
+.content {
+  flex: 1;
   width: 100%;
+  min-width: 0;
+  min-height: 100vh;
 
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
+  margin-left: var(--sidebar-width);
+  padding: 28px;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  transition: margin-left 0.3s ease, padding 0.3s ease;
+}
+
+/* Cuando barra cerrada */
+.app-shell:has(.sidebar.collapsed) .content {
+  margin-left: 0;
+  padding-left: 80px;
+}
+
+/* ======================
+   BOTÓN GLOBAL
+====================== */
+
+.global-toggle {
+  position: fixed;
+  top: 16px;
+  left: calc(var(--sidebar-width) - 24px);
+  z-index: 2000;
+
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 800;
+
+  background: var(--grad-main);
+  box-shadow: 0 14px 28px rgba(46, 141, 228, 0.25);
+
+  transition: left 0.3s ease, transform 0.2s ease;
+}
+
+.global-toggle:hover {
+  transform: translateY(-2px);
+}
+
+.app-shell:has(.sidebar.collapsed) .global-toggle {
+  left: 15px;
+}
+
+/* ======================
+   OVERLAY
+====================== */
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.28);
+  z-index: 900;
+}
+
+/* ======================
+   HEADER SIDEBAR
+====================== */
+
+.sidebar-hero {
+  padding: 22px 18px;
+  background: var(--grad-main);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.brand-badge {
+  width: 58px;
+  height: 58px;
+  min-width: 58px;
+  border-radius: 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.brand-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.brand-copy strong {
+  font-size: 15px;
+  line-height: 1.1;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.brand-copy span {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+/* ======================
+   NAV
+====================== */
+
+.nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 12px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 13px 14px;
+  border-radius: 16px;
+
+  color: #42526b;
+  text-decoration: none;
+  font-weight: 600;
+
+  transition: all 0.2s ease;
+}
+
+.nav-item:hover {
+  background: #f3f7fb;
+  transform: translateX(2px);
+}
+
+.nav-item.active {
+  background: var(--grad-main);
+  color: #ffffff;
+  box-shadow: 0 12px 24px rgba(46, 141, 228, 0.18);
+}
+
+/* ======================
+   ICONOS
+====================== */
+
+.nav-icon {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-icon svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+}
+
+/* ======================
+   PERFIL
+====================== */
+
+.sidebar-profile {
+  margin-top: auto;
+  padding: 16px;
+  border-top: 1px solid var(--line-soft);
+  background: #fbfcfe;
+}
+
+.profile-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-avatar {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 14px;
+
+  background: var(--grad-main);
+}
+
+.profile-copy strong {
+  font-size: 14px;
+  color: var(--text-main);
+}
+
+.sidebar-logout {
+  width: 100%;
+  margin-top: 14px;
+  padding: 11px 14px;
+
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+
+  background: var(--grad-main);
+}
+
+/* ======================
+   BOTONES GENERALES
+====================== */
+
+.action-button {
+  border: none;
+  cursor: pointer;
+  padding: 9px 12px;
+  border-radius: 10px;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--grad-main);
+}
+
+.action-button.danger {
+  background: #dc3545;
+}
+
+/* ======================
+   TABLAS
+====================== */
+
+.table-container {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 14px 12px;
+  text-align: left;
+  vertical-align: middle;
+  word-break: break-word;
+}
+
+/* ======================
+   GRID
+====================== */
+
+.stats-grid,
+.panel-grid {
+  display: grid;
+  gap: 20px;
+  width: 100%;
+}
+
+.stats-grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.panel-grid {
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+}
+
+/* ======================
+   TARJETAS
+====================== */
+
+.panel,
+.metric-card,
+.item-card,
+.form-card {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* ======================
+   DOCENTE
+====================== */
+
+.docente-grid {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.docente-card {
+  width: 220px;
+  padding: 20px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #eeeeee;
+}
+
+.docente-icon {
+  width: 70px;
+  height: 70px;
+  margin: 0 auto 10px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--grad-main);
+}
+
+@media (max-width: 768px) {
+  html,
+  body,
+  #root {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    overflow-x: hidden;
   }
 
-  &::before {
+  .app-shell {
+    display: block;
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ======================
+     SIDEBAR
+  ====================== */
+  .sidebar {
+    width: 270px;
+    max-width: 85vw;
+    height: 100vh;
+    top: 0;
     left: 0;
-    border-left-color: var(--border);
+    transform: translateX(-100%);
+    z-index: 1200;
+    box-shadow: 12px 0 30px rgba(0, 0, 0, 0.18);
   }
-  &::after {
-    right: 0;
-    border-right-color: var(--border);
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar.collapsed {
+    transform: translateX(-100%);
+  }
+
+  /* ======================
+     CONTENIDO
+  ====================== */
+  .content {
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    min-height: auto;
+    height: auto;
+    padding: 78px 12px 20px !important;
+
+    overflow-x: hidden;
+    overflow-y: visible;
+  }
+
+  .app-shell:has(.sidebar.open) .content,
+  .app-shell:has(.sidebar.collapsed) .content {
+    margin: 0 !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  /* ======================
+     BOTÓN
+  ====================== */
+  .global-toggle,
+  .app-shell:has(.sidebar.open) .global-toggle,
+  .app-shell:has(.sidebar.collapsed) .global-toggle {
+    left: 12px !important;
+    top: 12px;
+    width: 46px;
+    height: 46px;
+  }
+
+  /* ======================
+     GRIDS
+  ====================== */
+  .stats-grid,
+  .panel-grid,
+  .form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px;
+    width: 100%;
+  }
+
+  /* ======================
+     TARJETAS
+  ====================== */
+  .panel,
+  .metric-card,
+  .item-card,
+  .form-card,
+  .side-card {
+    width: 100%;
+    max-width: 100%;
+    padding: 14px;
+    border-radius: 18px;
+    overflow: hidden;
+  }
+
+  /* ======================
+     TABLAS
+  ====================== */
+  .table-container {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    width: 100%;
+    min-width: 650px;
+  }
+
+  th,
+  td {
+    padding: 10px 8px;
+    font-size: 0.86rem;
+    white-space: nowrap;
+  }
+
+  /* ======================
+     FORMULARIOS
+  ====================== */
+  input,
+  select,
+  textarea,
+  button {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* ======================
+     DOCENTE
+  ====================== */
+  .docente-grid {
+    flex-direction: column;
+    gap: 14px;
+    width: 100%;
+  }
+
+  .docente-card {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* ======================
+     TEXTO
+  ====================== */
+  h1,
+  h2,
+  h3,
+  p,
+  span,
+  strong {
+    word-break: break-word;
   }
 }

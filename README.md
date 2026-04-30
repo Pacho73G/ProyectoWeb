@@ -1,60 +1,64 @@
 # Sistema de Vigilancia Docente
 
-Aplicación web para gestión de vigilancia docente con frontend SPA en React y backend API REST en Spring Boot.
+Aplicación web para la supervisión operativa de docentes en turnos, recorridos, incidentes, limpiezas y notificaciones.
+
+El proyecto está dividido en:
+- `frontend/`: SPA en React + Vite.
+- `proyecto/demo/`: API REST en Spring Boot + JPA + PostgreSQL.
 
 ## Estado actual
 
-El proyecto ya no usa vistas Thymeleaf ni recursos estáticos renderizados por el backend.
-
-- `frontend/` contiene la SPA React/Vite.
-- `proyecto/demo/` contiene la API REST, el acceso a datos y la carga semilla.
-- El backend entrega JSON y la SPA consume esos endpoints desde `http://localhost:8080/api`.
+La versión actual ya incluye:
+- notificaciones reales persistidas en base de datos,
+- asignación de turnos con aviso al docente,
+- alertas automáticas por ausencia de turno,
+- registro de incidentes con o sin turno,
+- recorridos con notificación a coordinación y administración,
+- limpiezas asignables por docente y zona, incluso sin turno,
+- flujo de limpieza separado entre `admin` y `docente`.
 
 ## Arquitectura
 
 ### Frontend
 
-Ruta base: [frontend](/mnt/c/users/francisco%20guzman/onedrive/documentos/septimo/web/proyecto/frontend:1)
-
-Estructura principal:
+Ruta base: [frontend](/mnt/c/Users/Francisco%20Guzman/OneDrive/Documentos/Septimo/Web/Proyecto/frontend:1)
 
 ```text
 frontend/
 ├── src/
-│   ├── api/          # Clientes HTTP por recurso REST
-│   ├── components/   # Componentes reutilizables
-│   ├── hooks/        # Hooks compartidos
-│   ├── pages/        # Pantallas principales de la SPA
-│   ├── roleConfig.js # Permisos y navegación por rol
-│   ├── App.jsx       # Rutas principales
-│   └── main.jsx      # Punto de entrada
+│   ├── api/           # Clientes HTTP por recurso
+│   ├── components/    # Sidebar, tabla, modal, badges, etc.
+│   ├── hooks/         # Hooks compartidos como useApi
+│   ├── pages/         # Vistas principales
+│   ├── pages/forms/   # Formularios CRUD
+│   ├── roleConfig.js  # Navegación y permisos por rol
+│   ├── App.jsx        # Ruteo principal
+│   └── main.jsx       # Punto de entrada
 ├── package.json
 └── vite.config.js
 ```
 
 ### Backend
 
-Ruta base: [proyecto/demo](/mnt/c/users/francisco%20guzman/onedrive/documentos/septimo/web/proyecto/proyecto/demo:1)
-
-Estructura principal:
+Ruta base: [proyecto/demo](/mnt/c/Users/Francisco%20Guzman/OneDrive/Documentos/Septimo/Web/Proyecto/proyecto/demo:1)
 
 ```text
 proyecto/demo/
 ├── src/main/java/com/example/demo/
-│   ├── config/                 # Configuración y carga inicial
-│   ├── exception/              # Excepciones de dominio
-│   ├── model/                  # Entidades y enums JPA
-│   ├── repository/             # Repositorios Spring Data
-│   ├── service/                # Lógica de negocio
+│   ├── config/                  # Configuración y datos semilla
+│   ├── exception/               # Excepciones de dominio
+│   ├── model/                   # Entidades JPA y enums
+│   ├── repository/              # Repositorios Spring Data
+│   ├── service/                 # Lógica de negocio
 │   └── web/api/
-│       ├── controller/         # Endpoints REST
-│       ├── dto/                # DTOs de salida
-│       ├── handler/            # Manejo global de errores REST
-│       ├── mapper/             # Conversión entre dominio y API
-│       └── request/            # Payloads de entrada
+│       ├── controller/          # Endpoints REST
+│       ├── dto/                 # DTOs de salida
+│       ├── handler/             # Manejador global de errores
+│       ├── mapper/              # Mappers entidad <-> API
+│       └── request/             # Payloads de entrada
 ├── src/main/resources/
-│   ├── application.properties  # Configuración de Spring
-│   └── schema.sql              # Esquema de base de datos
+│   ├── application.properties
+│   └── schema.sql
 ├── pom.xml
 └── mvnw
 ```
@@ -63,27 +67,133 @@ proyecto/demo/
 
 - React 19
 - Vite
-- Spring Boot 3
+- Spring Boot 3.3
 - Spring Web
 - Spring Data JPA
 - PostgreSQL
 - Lombok
 - Maven Wrapper
 
+## Cambios implementados
+
+### 1. Notificaciones persistentes
+
+Antes las notificaciones estaban simuladas con `localStorage`. Ahora se guardan en base de datos y se comparten entre usuarios reales.
+
+Cambios principales:
+- nueva lógica central en [NotificacionManagementService.java](/mnt/c/Users/Francisco%20Guzman/OneDrive/Documentos/Septimo/Web/Proyecto/proyecto/demo/src/main/java/com/example/demo/service/NotificacionManagementService.java:1),
+- la entidad `Notificacion` ahora tiene `destinatario` y `titulo`,
+- la página de notificaciones consulta la API real,
+- el contador del sidebar consulta no leídas reales.
+
+Se agregaron estos flujos automáticos:
+- al crear un turno: notificación al docente asignado,
+- al iniciar turno: aviso al docente, coordinadores y administradores,
+- al cerrar turno: aviso al docente, coordinadores y administradores,
+- al registrar incidente: aviso a coordinadores y administradores,
+- al registrar recorrido: aviso a coordinadores y administradores,
+- al crear reasignación: aviso a coordinadores y administradores,
+- al responder una reasignación: aviso al docente solicitante,
+- al asignar una limpieza: aviso al docente asignado,
+- al detectar turno vencido sin check-in: alerta de ausencia.
+
+### 2. Incidentes con o sin turno
+
+El módulo de incidentes ya no obliga a que todo reporte pertenezca a un turno.
+
+Ahora un docente puede:
+- registrar un incidente durante un turno,
+- o registrar un incidente fuera de turno, indicando zona y fecha.
+
+Cambios:
+- `turno_id` en `incidentes` pasó a ser opcional,
+- el formulario permite `Turno` vacío,
+- la tabla muestra si fue `Sin turno` o asociado a una franja.
+
+### 3. Limpiezas asignadas
+
+El módulo de limpieza cambió de ser solo “cierre de turno” a un flujo de asignación real.
+
+Ahora una limpieza puede:
+- estar asociada a un turno,
+- o existir sin turno,
+- pero siempre queda asociada a un `docente` y una `zona`.
+
+Nuevos campos:
+- `docente_id`
+- `zona_id`
+- `asignada_en`
+- `completada`
+
+Reglas funcionales:
+- `admin` crea y asigna limpiezas,
+- `docente` solo ve sus limpiezas asignadas,
+- `docente` solo puede completar las pendientes,
+- si una limpieza ya está `COMPLETADA`, al docente ya no le salen acciones.
+
+### 4. Ajustes de permisos y navegación
+
+Cambios por rol:
+
+- `administrador`
+  - puede gestionar limpiezas,
+  - ve la opción `Limpieza` en el menú,
+  - crea y edita asignaciones.
+
+- `docente`
+  - no crea limpiezas nuevas,
+  - solo completa las asignadas,
+  - ve `Completar` únicamente cuando la limpieza está pendiente.
+
+### 5. Alineación del modelo JPA
+
+Se corrigió la relación entre `Turno` y `RegistroLimpieza`:
+- `Turno.registroLimpieza` mantiene `@OneToOne`,
+- `RegistroLimpieza.turno` volvió a `@OneToOne`,
+- el turno sigue siendo opcional para limpieza, pero si existe mantiene unicidad.
+
 ## Módulos funcionales
 
-- Gestión de usuarios y docentes
-- Gestión de zonas y turnos
-- Registro de check-ins
-- Registro de incidentes
-- Gestión de reasignaciones
-- Registro de limpieza
-- Gestión de notificaciones
-- Gestión de recorridos y checkpoints
+- Usuarios
+- Docentes
+- Turnos
+- Zonas
+- Check-ins
+- Incidentes
+- Reasignaciones
+- Limpiezas
+- Notificaciones
+- Recorridos
+- Checkpoints
 - Mapas de calor
 - Métricas
 - Reconocimientos
 - Reporte resumen
+
+## Flujo por rol
+
+### Administrador
+
+- gestiona usuarios, turnos, zonas, checkpoints y configuración,
+- asigna limpiezas,
+- consulta incidentes, recorridos, reportes y notificaciones,
+- recibe avisos operativos.
+
+### Docente
+
+- consulta sus turnos,
+- inicia y finaliza turno,
+- registra incidentes,
+- registra recorridos,
+- crea solicitudes de reasignación,
+- consulta y completa limpiezas asignadas,
+- recibe sus notificaciones personales.
+
+### Coordinador
+
+- consulta operación general,
+- ve incidencias, recorridos, reportes y notificaciones,
+- recibe alertas por incidentes, recorridos, reasignaciones y ausencias.
 
 ## API REST
 
@@ -93,14 +203,11 @@ Base URL:
 http://localhost:8080/api
 ```
 
-Recursos disponibles:
-
+Recursos principales:
 - `GET/POST /usuarios`
 - `GET/PUT/DELETE /usuarios/{id}`
 - `GET/POST /docentes`
 - `GET/PUT/DELETE /docentes/{id}`
-- `GET/POST /configuraciones`
-- `GET/PUT/DELETE /configuraciones/{id}`
 - `GET/POST /zonas`
 - `GET/PUT/DELETE /zonas/{id}`
 - `GET/POST /turnos`
@@ -113,6 +220,9 @@ Recursos disponibles:
 - `GET/PUT/DELETE /reasignaciones/{id}`
 - `GET/POST /limpiezas`
 - `GET/PUT/DELETE /limpiezas/{id}`
+- `GET /notificaciones?userId={id}`
+- `GET /notificaciones/unread-count?userId={id}`
+- `PUT /notificaciones/mark-read?userId={id}`
 - `GET/POST /notificaciones`
 - `GET/PUT/DELETE /notificaciones/{id}`
 - `GET/POST /recorridos`
@@ -127,11 +237,26 @@ Recursos disponibles:
 - `GET/PUT/DELETE /reconocimientos/{id}`
 - `GET /reportes/resumen`
 
-## Ejecución
+## Base de datos
+
+Archivo de esquema: [schema.sql](/mnt/c/Users/Francisco%20Guzman/OneDrive/Documentos/Septimo/Web/Proyecto/proyecto/demo/src/main/resources/schema.sql:1)
+
+Aspectos importantes del esquema actual:
+- `notificaciones` ahora soporta destinatario y título,
+- `incidentes.turno_id` es nullable,
+- `notificaciones.turno_id` es nullable,
+- `registros_limpieza` ahora soporta:
+  - `turno_id` opcional,
+  - `docente_id` obligatorio,
+  - `zona_id` obligatorio,
+  - `asignada_en`,
+  - `completada`.
+
+## Ejecución local
 
 ### Backend
 
-Desde [proyecto/demo](/mnt/c/users/francisco%20guzman/onedrive/documentos/septimo/web/proyecto/proyecto/demo:1):
+Desde [proyecto/demo](/mnt/c/Users/Francisco%20Guzman/OneDrive/Documentos/Septimo/Web/Proyecto/proyecto/demo:1):
 
 ```bash
 ./mvnw spring-boot:run
@@ -145,77 +270,92 @@ En PowerShell:
 
 ### Frontend
 
-Desde [frontend](/mnt/c/users/francisco%20guzman/onedrive/documentos/septimo/web/proyecto/frontend:1):
+Desde [frontend](/mnt/c/Users/Francisco%20Guzman/OneDrive/Documentos/Septimo/Web/Proyecto/frontend:1):
 
 ```bash
 npm install
 npm run dev
 ```
 
-Frontend por defecto:
+Aplicación:
 
 ```text
 http://localhost:5173
 ```
 
-## Variables y configuración
+## Configuración
 
-Frontend:
+### Frontend
 
 - `VITE_API_BASE_URL`
   Si no se define, usa `http://localhost:8080/api`.
 
-Backend:
+### Backend
 
-- La configuración de base de datos está en [application.properties](/mnt/c/users/francisco%20guzman/onedrive/documentos/septimo/web/proyecto/proyecto/demo/src/main/resources/application.properties:1).
-- El esquema inicial está en [schema.sql](/mnt/c/users/francisco%20guzman/onedrive/documentos/septimo/web/proyecto/proyecto/demo/src/main/resources/schema.sql:1).
-- La carga semilla se ejecuta con [DataLoader.java](/mnt/c/users/francisco%20guzman/onedrive/documentos/septimo/web/proyecto/proyecto/demo/src/main/java/com/example/demo/config/DataLoader.java:1).
+Configuración principal en [application.properties](/mnt/c/Users/Francisco%20Guzman/OneDrive/Documentos/Septimo/Web/Proyecto/proyecto/demo/src/main/resources/application.properties:1).
 
-## Pruebas manuales rápidas
+Actualmente usa:
+- PostgreSQL local,
+- inicialización por `schema.sql`,
+- `app.seed.enabled=true` para cargar datos base.
 
-### Navegador
+## Datos semilla
 
-Puedes verificar respuestas JSON con:
+La carga inicial se realiza desde [DataLoader.java](/mnt/c/Users/Francisco%20Guzman/OneDrive/Documentos/Septimo/Web/Proyecto/proyecto/demo/src/main/java/com/example/demo/config/DataLoader.java:1).
 
-- `http://localhost:8080/api/usuarios`
-- `http://localhost:8080/api/zonas`
-- `http://localhost:8080/api/turnos`
-- `http://localhost:8080/api/reportes/resumen`
+Incluye ejemplos de:
+- administrador,
+- coordinador,
+- docentes,
+- turnos,
+- incidente,
+- reasignación,
+- limpieza,
+- recorrido,
+- notificación,
+- métricas y reconocimiento.
 
-### Curl
+## Casos de prueba manual
+
+### Notificaciones
+
+1. Crear un turno desde admin.
+2. Verificar que el docente asignado reciba notificación.
+3. Iniciar turno desde docente.
+4. Revisar notificación de check-in en coordinador/admin.
+5. Dejar vencer un turno pendiente y consultar notificaciones.
+
+### Incidentes
+
+1. Crear incidente con turno.
+2. Crear incidente sin turno.
+3. Verificar que ambos aparezcan en la tabla.
+
+### Limpiezas
+
+1. Entrar como admin.
+2. Ir a `Limpieza`.
+3. Crear una limpieza con docente y zona.
+4. Opcionalmente dejar `turno` vacío.
+5. Entrar como docente asignado.
+6. Verificar que aparezca la limpieza.
+7. Completarla.
+8. Confirmar que ya no aparezca acción si quedó `COMPLETADA`.
+
+## Verificación realizada
+
+Frontend:
 
 ```bash
-curl http://localhost:8080/api/usuarios
-curl http://localhost:8080/api/zonas
-curl http://localhost:8080/api/reportes/resumen
-curl -X DELETE http://localhost:8080/api/zonas/1 -i
+npm run build
 ```
 
-### Postman
+Resultado:
+- compilación correcta de la SPA.
 
-Ejemplos:
-
-- `GET http://localhost:8080/api/usuarios`
-- `GET http://localhost:8080/api/zonas`
-- `POST http://localhost:8080/api/zonas`
-- `PUT http://localhost:8080/api/zonas/{id}`
-- `DELETE http://localhost:8080/api/zonas/{id}`
-
-Payload ejemplo para `POST /zonas`:
-
-```json
-{
-  "nombre": "Zona Prueba",
-  "descripcion": "Zona creada desde Postman",
-  "ubicacion": "Bloque C",
-  "capacidadMaxima": 50,
-  "activa": true
-}
-```
-
-## Convención de comentarios
-
-El código fuente quedó documentado con comentarios de propósito por archivo para que sea más fácil identificar la responsabilidad de cada pieza sin saturar la lógica con ruido innecesario.
+Backend:
+- el arranque y las correcciones SQL se ajustaron para que `schema.sql` sea compatible con el inicializador de Spring Boot,
+- la validación final del backend depende de tener Java y PostgreSQL disponibles en la máquina local.
 
 ## Documentación complementaria
 

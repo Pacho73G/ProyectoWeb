@@ -1,15 +1,26 @@
-/* Archivo documentado: Pantalla principal de la SPA. Consume la API y presenta una vista funcional del módulo correspondiente. */
+/* Reconocimientos filtrados por docente */
+
 import { CrudPage } from './CrudPage';
 import { getReconocimientos, deleteReconocimiento } from '../api/reconocimiento.api';
 import { ReconocimientoForm } from './forms/ReconocimientoForm';
+import { getRole, getDocenteId } from '../roleConfig';
 
 export function ReconocimientosPage() {
+  const role = getRole();
+  const docenteId = getDocenteId();
+
   const columns = [
     { key: 'titulo', label: 'Título' },
     { key: 'docenteNombre', label: 'Docente' },
     { key: 'tipo', label: 'Tipo' },
     { key: 'trimestre', label: 'Trimestre' },
   ];
+
+  // 🔥 FILTRO CLAVE
+  const filterFn = (data) =>
+    role === 'docente'
+      ? data.filter((r) => String(r.docenteId) === String(docenteId))
+      : data;
 
   return (
     <CrudPage
@@ -23,6 +34,7 @@ export function ReconocimientosPage() {
       formPropName="reconocimiento"
       deleteMessage="¿Eliminar este reconocimiento? Esta acción no se puede deshacer."
       resource="reconocimientos"
+      filterFn={filterFn}
     />
   );
 }
