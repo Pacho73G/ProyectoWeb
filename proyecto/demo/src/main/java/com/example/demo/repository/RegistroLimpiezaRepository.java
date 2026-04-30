@@ -11,7 +11,7 @@ import com.example.demo.model.RegistroLimpieza;
 public interface RegistroLimpiezaRepository extends JpaRepository<RegistroLimpieza, Long> {
 
     @Override
-    @EntityGraph(attributePaths = "turno")
+    @EntityGraph(attributePaths = {"turno", "docente", "zona"})
     java.util.List<RegistroLimpieza> findAll();
 
     Optional<RegistroLimpieza> findByTurnoId(Long turnoId);

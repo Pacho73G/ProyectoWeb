@@ -40,11 +40,16 @@ export const limpiezaEscalas = [
 ];
 
 export const notificacionTipos = [
+  { value: 'ASIGNACION_TURNO', label: 'ASIGNACION_TURNO' },
   { value: 'RECORDATORIO_10MIN', label: 'RECORDATORIO_10MIN' },
   { value: 'RECORDATORIO_5MIN', label: 'RECORDATORIO_5MIN' },
   { value: 'ALERTA_AUSENCIA', label: 'ALERTA_AUSENCIA' },
+  { value: 'REPORTE_INCIDENTE', label: 'REPORTE_INCIDENTE' },
+  { value: 'REGISTRO_RECORRIDO', label: 'REGISTRO_RECORRIDO' },
+  { value: 'ASIGNACION_LIMPIEZA', label: 'ASIGNACION_LIMPIEZA' },
   { value: 'PROPUESTA_REEMPLAZO', label: 'PROPUESTA_REEMPLAZO' },
   { value: 'CONFIRMACION_CHECKIN', label: 'CONFIRMACION_CHECKIN' },
+  { value: 'CIERRE_TURNO', label: 'CIERRE_TURNO' },
 ];
 
 export const rolesUsuario = [

@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS checkins (
 
 CREATE TABLE IF NOT EXISTS incidentes (
     id BIGSERIAL PRIMARY KEY,
-    turno_id BIGINT NOT NULL,
+    turno_id BIGINT NULL,
     docente_id BIGINT NOT NULL,
     zona_id BIGINT NOT NULL,
     tipo VARCHAR(64) NOT NULL,
@@ -111,12 +111,20 @@ CREATE TABLE IF NOT EXISTS reasignaciones (
 
 CREATE TABLE IF NOT EXISTS registros_limpieza (
     id BIGSERIAL PRIMARY KEY,
-    turno_id BIGINT NOT NULL UNIQUE,
+    turno_id BIGINT NULL UNIQUE,
+    docente_id BIGINT NOT NULL,
+    zona_id BIGINT NOT NULL,
     escala INTEGER NOT NULL,
     observaciones TEXT NOT NULL,
+    asignada_en TIMESTAMP NOT NULL,
     registrado_en TIMESTAMP NOT NULL,
-    CONSTRAINT fk_registros_limpieza_turno FOREIGN KEY (turno_id) REFERENCES turnos(id) ON DELETE CASCADE
+    completada BOOLEAN NOT NULL DEFAULT FALSE,
+    CONSTRAINT fk_registros_limpieza_turno FOREIGN KEY (turno_id) REFERENCES turnos(id) ON DELETE CASCADE,
+    CONSTRAINT fk_registros_limpieza_docente FOREIGN KEY (docente_id) REFERENCES docentes(id) ON DELETE CASCADE,
+    CONSTRAINT fk_registros_limpieza_zona FOREIGN KEY (zona_id) REFERENCES zonas(id) ON DELETE CASCADE
 );
+
+ALTER TABLE incidentes ALTER COLUMN turno_id DROP NOT NULL;
 
 CREATE TABLE IF NOT EXISTS recorridos (
     id BIGSERIAL PRIMARY KEY,
@@ -144,14 +152,39 @@ CREATE TABLE IF NOT EXISTS checkpoints_recorrido (
 
 CREATE TABLE IF NOT EXISTS notificaciones (
     id BIGSERIAL PRIMARY KEY,
-    turno_id BIGINT NOT NULL,
+    turno_id BIGINT NULL,
+    destinatario_id BIGINT NULL,
     tipo VARCHAR(64) NOT NULL,
+    titulo VARCHAR(255) NOT NULL,
     mensaje TEXT NOT NULL,
     enviada_en TIMESTAMP NOT NULL,
     leida BOOLEAN NOT NULL DEFAULT FALSE,
     minutos_anticipacion INTEGER NOT NULL,
-    CONSTRAINT fk_notificaciones_turno FOREIGN KEY (turno_id) REFERENCES turnos(id) ON DELETE CASCADE
+    CONSTRAINT fk_notificaciones_turno FOREIGN KEY (turno_id) REFERENCES turnos(id) ON DELETE CASCADE,
+    CONSTRAINT fk_notificaciones_destinatario FOREIGN KEY (destinatario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 );
+ALTER TABLE notificaciones ALTER COLUMN turno_id DROP NOT NULL;
+
+ALTER TABLE notificaciones ADD COLUMN IF NOT EXISTS destinatario_id BIGINT NULL;
+ALTER TABLE notificaciones ADD COLUMN IF NOT EXISTS titulo VARCHAR(255);
+UPDATE notificaciones SET titulo = 'Notificación' WHERE titulo IS NULL;
+ALTER TABLE notificaciones ALTER COLUMN titulo SET NOT NULL;
+ALTER TABLE registros_limpieza ALTER COLUMN turno_id DROP NOT NULL;
+ALTER TABLE registros_limpieza ADD COLUMN IF NOT EXISTS docente_id BIGINT;
+ALTER TABLE registros_limpieza ADD COLUMN IF NOT EXISTS zona_id BIGINT;
+ALTER TABLE registros_limpieza ADD COLUMN IF NOT EXISTS asignada_en TIMESTAMP;
+ALTER TABLE registros_limpieza ADD COLUMN IF NOT EXISTS completada BOOLEAN NOT NULL DEFAULT FALSE;
+UPDATE registros_limpieza rl
+SET docente_id = t.docente_id,
+    zona_id = t.zona_id,
+    asignada_en = COALESCE(rl.registrado_en, CURRENT_TIMESTAMP)
+FROM turnos t
+WHERE rl.turno_id = t.id
+  AND (rl.docente_id IS NULL OR rl.zona_id IS NULL OR rl.asignada_en IS NULL);
+ALTER TABLE registros_limpieza ALTER COLUMN docente_id SET NOT NULL;
+ALTER TABLE registros_limpieza ALTER COLUMN zona_id SET NOT NULL;
+UPDATE registros_limpieza SET asignada_en = CURRENT_TIMESTAMP WHERE asignada_en IS NULL;
+ALTER TABLE registros_limpieza ALTER COLUMN asignada_en SET NOT NULL;
 
 CREATE TABLE IF NOT EXISTS metricas_docente (
     id BIGSERIAL PRIMARY KEY,

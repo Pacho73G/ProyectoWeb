@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.service.AnaliticaManagementService;
 import com.example.demo.service.CatalogQueryService;
+import com.example.demo.service.NotificacionManagementService;
 import com.example.demo.web.api.dto.ApiDtos.CheckpointDto;
 import com.example.demo.web.api.dto.ApiDtos.MapaCalorDto;
 import com.example.demo.web.api.dto.ApiDtos.MetricaDto;
@@ -36,10 +37,13 @@ public class AnaliticaApiController {
 
     private final CatalogQueryService catalogQueryService;
     private final AnaliticaManagementService analiticaManagementService;
+    private final NotificacionManagementService notificacionManagementService;
 
-    public AnaliticaApiController(CatalogQueryService catalogQueryService, AnaliticaManagementService analiticaManagementService) {
+    public AnaliticaApiController(CatalogQueryService catalogQueryService, AnaliticaManagementService analiticaManagementService,
+                                  NotificacionManagementService notificacionManagementService) {
         this.catalogQueryService = catalogQueryService;
         this.analiticaManagementService = analiticaManagementService;
+        this.notificacionManagementService = notificacionManagementService;
     }
 
     @GetMapping("/mapas-calor")
@@ -138,8 +142,11 @@ public class AnaliticaApiController {
 
     @PostMapping("/recorridos")
     public ResponseEntity<RecorridoDto> crearRecorrido(@RequestBody RecorridoRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiMapper.toDto(analiticaManagementService.guardar(ApiMapper.apply(request, new com.example.demo.model.Recorrido(), catalogQueryService))));
+        com.example.demo.model.Recorrido recorrido = analiticaManagementService.guardar(
+                ApiMapper.apply(request, new com.example.demo.model.Recorrido(), catalogQueryService)
+        );
+        notificacionManagementService.notificarRecorrido(recorrido);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiMapper.toDto(recorrido));
     }
 
     @PutMapping("/recorridos/{id}")

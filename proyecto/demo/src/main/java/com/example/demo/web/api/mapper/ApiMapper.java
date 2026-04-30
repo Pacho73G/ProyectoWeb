@@ -97,6 +97,7 @@ public final class ApiMapper {
         return new IncidenteDto(
                 entity.getId(),
                 entity.getTurno() != null ? entity.getTurno().getId() : null,
+                entity.getTurno() != null ? entity.getTurno().getFranja() : null,
                 entity.getDocente() != null ? entity.getDocente().getId() : null,
                 entity.getDocente() != null ? entity.getDocente().getNombre() : null,
                 entity.getZona() != null ? entity.getZona().getId() : null,
@@ -145,15 +146,36 @@ public final class ApiMapper {
     }
 
     public static LimpiezaDto toDto(RegistroLimpieza entity) {
-        return new LimpiezaDto(entity.getId(), entity.getTurno() != null ? entity.getTurno().getId() : null,
-                entity.getTurno() != null ? entity.getTurno().getFranja() : null, entity.getEscala(),
-                entity.getObservaciones(), format(entity.getRegistradoEn()));
+        return new LimpiezaDto(
+                entity.getId(),
+                entity.getTurno() != null ? entity.getTurno().getId() : null,
+                entity.getTurno() != null ? entity.getTurno().getFranja() : null,
+                entity.getDocente() != null ? entity.getDocente().getId() : null,
+                entity.getDocente() != null ? entity.getDocente().getNombre() : null,
+                entity.getZona() != null ? entity.getZona().getId() : null,
+                entity.getZona() != null ? entity.getZona().getNombre() : null,
+                entity.getEscala(),
+                entity.getObservaciones(),
+                format(entity.getAsignadaEn()),
+                format(entity.getRegistradoEn()),
+                entity.getCompletada()
+        );
     }
 
     public static NotificacionDto toDto(Notificacion entity) {
-        return new NotificacionDto(entity.getId(), entity.getTurno() != null ? entity.getTurno().getId() : null,
-                entity.getTurno() != null ? entity.getTurno().getFranja() : null, enumName(entity.getTipo()),
-                entity.getMensaje(), format(entity.getEnviadaEn()), entity.getLeida(), entity.getMinutosAnticipacion());
+        return new NotificacionDto(
+                entity.getId(),
+                entity.getTurno() != null ? entity.getTurno().getId() : null,
+                entity.getTurno() != null ? entity.getTurno().getFranja() : null,
+                entity.getDestinatario() != null ? entity.getDestinatario().getId() : null,
+                entity.getDestinatario() != null ? entity.getDestinatario().getNombre() : null,
+                enumName(entity.getTipo()),
+                entity.getTitulo(),
+                entity.getMensaje(),
+                format(entity.getEnviadaEn()),
+                entity.getLeida(),
+                entity.getMinutosAnticipacion()
+        );
     }
 
     public static MapaCalorDto toDto(MapaCalor entity) {
@@ -238,7 +260,8 @@ public final class ApiMapper {
     }
 
     public static Incidente apply(IncidenteRequest request, Incidente entity, CatalogQueryService queryService) {
-        entity.setTurno(queryService.turno(request.turnoId()));
+        // El incidente puede registrarse fuera de turno; por eso la relación es opcional.
+        entity.setTurno(request.turnoId() != null ? queryService.turno(request.turnoId()) : null);
         entity.setDocente(queryService.docente(request.docenteId()));
         entity.setZona(queryService.zona(request.zonaId()));
         entity.setTipo(parseTipoIncidente(request.tipo()));
@@ -274,16 +297,25 @@ public final class ApiMapper {
     }
 
     public static RegistroLimpieza apply(LimpiezaRequest request, RegistroLimpieza entity, CatalogQueryService queryService) {
-        entity.setTurno(queryService.turno(request.turnoId()));
+        // La limpieza puede existir con turno o sin turno, pero siempre con docente y zona asignados.
+        entity.setTurno(request.turnoId() != null ? queryService.turno(request.turnoId()) : null);
+        entity.setDocente(queryService.docente(request.docenteId()));
+        entity.setZona(queryService.zona(request.zonaId()));
         entity.setEscala(request.escala());
         entity.setObservaciones(defaultString(request.observaciones()));
+        // "asignadaEn" representa cuándo se entregó la tarea, distinto de cuándo fue registrada.
+        entity.setAsignadaEn(resolveDateTimeOrNow(request.asignadaEn(), entity.getAsignadaEn()));
         entity.setRegistradoEn(resolveDateTimeOrNow(request.registradoEn(), entity.getRegistradoEn()));
+        entity.setCompletada(request.completada() != null ? request.completada() : entity.getCompletada() != null ? entity.getCompletada() : Boolean.FALSE);
         return entity;
     }
 
     public static Notificacion apply(NotificacionRequest request, Notificacion entity, CatalogQueryService queryService) {
-        entity.setTurno(queryService.turno(request.turnoId()));
+        // Algunas notificaciones nacen de turno y otras de eventos sin turno; por eso es opcional.
+        entity.setTurno(request.turnoId() != null ? queryService.turno(request.turnoId()) : null);
+        entity.setDestinatario(request.destinatarioId() != null ? queryService.usuario(request.destinatarioId()) : null);
         entity.setTipo(parseTipoNotificacion(request.tipo()));
+        entity.setTitulo(defaultString(request.titulo()));
         entity.setMensaje(defaultString(request.mensaje()));
         entity.setEnviadaEn(resolveDateTimeOrNow(request.enviadaEn(), entity.getEnviadaEn()));
         entity.setLeida(request.leida() != null ? request.leida() : Boolean.FALSE);

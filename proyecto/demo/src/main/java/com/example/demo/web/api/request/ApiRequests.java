@@ -60,14 +60,20 @@ public final class ApiRequests {
 
     public record LimpiezaRequest(
             Long turnoId,
+            Long docenteId,
+            Long zonaId,
             Integer escala,
             String observaciones,
-            String registradoEn
+            String asignadaEn,
+            String registradoEn,
+            Boolean completada
     ) {}
 
     public record NotificacionRequest(
             Long turnoId,
+            Long destinatarioId,
             String tipo,
+            String titulo,
             String mensaje,
             String enviadaEn,
             Boolean leida,

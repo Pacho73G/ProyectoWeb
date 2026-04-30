@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.service.CatalogQueryService;
+import com.example.demo.service.NotificacionManagementService;
 import com.example.demo.service.OperacionManagementService;
 import com.example.demo.web.api.dto.ApiDtos.TurnoDto;
 import com.example.demo.web.api.dto.ApiDtos.ZonaDto;
@@ -30,10 +31,13 @@ public class ZonaTurnoApiController {
 
     private final CatalogQueryService catalogQueryService;
     private final OperacionManagementService operacionManagementService;
+    private final NotificacionManagementService notificacionManagementService;
 
-    public ZonaTurnoApiController(CatalogQueryService catalogQueryService, OperacionManagementService operacionManagementService) {
+    public ZonaTurnoApiController(CatalogQueryService catalogQueryService, OperacionManagementService operacionManagementService,
+                                  NotificacionManagementService notificacionManagementService) {
         this.catalogQueryService = catalogQueryService;
         this.operacionManagementService = operacionManagementService;
+        this.notificacionManagementService = notificacionManagementService;
     }
 
     @GetMapping("/zonas")
@@ -76,13 +80,27 @@ public class ZonaTurnoApiController {
 
     @PostMapping("/turnos")
     public ResponseEntity<TurnoDto> crearTurno(@RequestBody TurnoRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiMapper.toDto(operacionManagementService.guardar(ApiMapper.apply(request, new com.example.demo.model.Turno(), catalogQueryService))));
+        com.example.demo.model.Turno turno = operacionManagementService.guardar(
+                ApiMapper.apply(request, new com.example.demo.model.Turno(), catalogQueryService)
+        );
+        notificacionManagementService.notificarAsignacionTurno(turno);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiMapper.toDto(turno));
     }
 
     @PutMapping("/turnos/{id}")
     public ResponseEntity<TurnoDto> actualizarTurno(@PathVariable Long id, @RequestBody TurnoRequest request) {
-        return ResponseEntity.ok(ApiMapper.toDto(operacionManagementService.guardar(ApiMapper.apply(request, catalogQueryService.turno(id), catalogQueryService))));
+        com.example.demo.model.Turno turno = catalogQueryService.turno(id);
+        com.example.demo.model.EstadoTurno estadoAnterior = turno.getEstado();
+        turno = operacionManagementService.guardar(ApiMapper.apply(request, turno, catalogQueryService));
+
+        if (turno.getEstado() == com.example.demo.model.EstadoTurno.EN_CURSO && estadoAnterior != com.example.demo.model.EstadoTurno.EN_CURSO) {
+            notificacionManagementService.notificarCheckIn(turno);
+        }
+        if (turno.getEstado() == com.example.demo.model.EstadoTurno.CERRADO && estadoAnterior != com.example.demo.model.EstadoTurno.CERRADO) {
+            notificacionManagementService.notificarCierreTurno(turno);
+        }
+
+        return ResponseEntity.ok(ApiMapper.toDto(turno));
     }
 
     @DeleteMapping("/turnos/{id}")

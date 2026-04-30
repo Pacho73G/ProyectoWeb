@@ -134,14 +134,20 @@ public class DataLoader implements CommandLineRunner {
 
         RegistroLimpieza limpieza = new RegistroLimpieza();
         limpieza.setTurno(turno1);
+        limpieza.setDocente(docente1);
+        limpieza.setZona(patio);
         limpieza.setEscala(4);
         limpieza.setObservaciones("Zona entregada en buen estado.");
+        limpieza.setAsignadaEn(LocalDateTime.now().minusMinutes(25));
         limpieza.setRegistradoEn(LocalDateTime.now().minusMinutes(5));
+        limpieza.setCompletada(true);
         sistemaService.guardar(limpieza);
 
         Notificacion notificacion = new Notificacion();
         notificacion.setTurno(turno3);
+        notificacion.setDestinatario(docente3);
         notificacion.setTipo(TipoNotificacion.RECORDATORIO_10MIN);
+        notificacion.setTitulo("Recordatorio de turno");
         notificacion.setMensaje("Tu turno de almuerzo bachillerato inicia en 10 minutos.");
         notificacion.setEnviadaEn(LocalDateTime.now().minusMinutes(1));
         notificacion.setLeida(false);

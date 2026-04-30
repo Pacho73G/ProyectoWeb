@@ -7,23 +7,21 @@ import { incidenteSeveridades, incidenteTipos } from './options';
 import {
   getRole,
   getDocenteId,
-  getUserNombre,
 } from '../../roleConfig';
-import { pushNotification } from '../../api/notificacion.api';
 
 export function IncidenteForm({ incidente, onSave, onCancel }) {
   const role = getRole();
   const docenteId = getDocenteId();
-  const userNombre = getUserNombre();
 
   const fields = [
     {
       name: 'turnoId',
       label: 'Turno',
       type: 'select',
-      required: true,
       loader: 'turnos',
       optionLabel: (item) => item.franja,
+      allowEmpty: true,
+      placeholder: 'Sin turno',
     },
 
     ...(role !== 'docente'
@@ -92,6 +90,7 @@ export function IncidenteForm({ incidente, onSave, onCancel }) {
     turnos: {
       fetcher: async () => {
         const data = await getTurnos();
+        // El docente solo puede vincular incidentes a turnos propios.
         return role === 'docente'
           ? data.filter((t) => t.docenteId === docenteId)
           : data;
@@ -107,25 +106,10 @@ export function IncidenteForm({ incidente, onSave, onCancel }) {
 
   const preparePayload = (payload) => {
     if (role === 'docente') {
+      // El backend exige docenteId aunque el campo no se muestre visualmente al docente.
       payload.docenteId = docenteId;
     }
     return payload;
-  };
-
-  const handleSave = () => {
-    pushNotification({
-      title: 'Nuevo incidente',
-      message: `${userNombre} registró un incidente.`,
-      role: 'coordinador',
-    });
-
-    pushNotification({
-      title: 'Nuevo incidente',
-      message: `${userNombre} registró un incidente.`,
-      role: 'administrador',
-    });
-
-    onSave();
   };
 
   return (
@@ -139,7 +123,7 @@ export function IncidenteForm({ incidente, onSave, onCancel }) {
       updateAction={(id, data) =>
         updateIncidente(id, preparePayload(data))
       }
-      onSave={handleSave}
+      onSave={onSave}
       onCancel={onCancel}
     />
   );

@@ -6,24 +6,32 @@ import {
 
 import {
   getRole,
-  getDocenteId,
+  getUserId,
   ROLE_VIEW_LABELS,
 } from '../roleConfig';
 
 export function NotificacionesPage() {
   const role = getRole();
-  const docenteId = getDocenteId();
+  const userId = getUserId();
 
   const [items, setItems] = useState([]);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     loadNotifications();
-  }, []);
+  }, [userId]);
 
-  function loadNotifications() {
-    const data = getUserNotifications(role, docenteId);
-    setItems(data);
-    markAllAsRead(role, docenteId);
+  async function loadNotifications() {
+    if (!userId) return;
+    try {
+      const data = await getUserNotifications(userId);
+      setItems(data);
+      await markAllAsRead(userId);
+      window.dispatchEvent(new Event('notifications:changed'));
+      setError(null);
+    } catch (e) {
+      setError(e.message);
+    }
   }
 
   return (
@@ -53,6 +61,10 @@ export function NotificacionesPage() {
           </p>
         </div>
 
+        {error && (
+          <div className="alert error">{error}</div>
+        )}
+
         {/* LISTADO */}
         <div
           style={{
@@ -78,9 +90,9 @@ export function NotificacionesPage() {
               </div>
 
               <div className="notification-content">
-                <strong>{n.titulo}</strong>
+                <strong>{n.titulo || 'Notificación'}</strong>
                 <p>{n.mensaje}</p>
-                <small>{n.fecha}</small>
+                <small>{n.enviadaEn}</small>
               </div>
             </div>
           ))}

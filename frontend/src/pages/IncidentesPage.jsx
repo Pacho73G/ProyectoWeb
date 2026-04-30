@@ -41,11 +41,7 @@ export function IncidentesPage() {
       render: (row) => (
         <div className="table-main">
           <strong>{row.zonaNombre}</strong>
-          <small>
-            {row.requiereSeguimiento
-              ? 'Requiere seguimiento'
-              : 'Sin seguimiento'}
-          </small>
+          <small>{row.turnoFranja ? `Turno ${row.turnoFranja}` : 'Reporte fuera de turno'}</small>
         </div>
       ),
     },

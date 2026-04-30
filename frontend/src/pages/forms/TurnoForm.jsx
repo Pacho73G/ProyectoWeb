@@ -3,7 +3,6 @@ import { createTurno, updateTurno } from '../../api/turno.api';
 import { getDocentes } from '../../api/usuario.api';
 import { getZonas } from '../../api/zona.api';
 import { turnoEstados } from './options';
-import { pushNotification } from '../../api/notificacion.api';
 
 export function TurnoForm({ turno, onSave, onCancel }) {
   const fields = [
@@ -18,19 +17,6 @@ export function TurnoForm({ turno, onSave, onCancel }) {
     { name: 'cerradoEn', label: 'Cerrado en', type: 'datetime-local' },
   ];
 
-  const handleCreate = async (data) => {
-    const created = await createTurno(data);
-
-    pushNotification({
-      role: 'docente',
-      userId: data.docenteId,
-      titulo: 'Nuevo turno asignado',
-      mensaje: `Se te asignó el turno "${data.franja}" para el ${data.fecha}`,
-    });
-
-    return created;
-  };
-
   return (
     <EntityForm
       entity={turno}
@@ -41,7 +27,7 @@ export function TurnoForm({ turno, onSave, onCancel }) {
         docentes: { fetcher: getDocentes },
         zonas: { fetcher: getZonas },
       }}
-      createAction={handleCreate}
+      createAction={createTurno}
       updateAction={updateTurno}
       onSave={onSave}
       onCancel={onCancel}

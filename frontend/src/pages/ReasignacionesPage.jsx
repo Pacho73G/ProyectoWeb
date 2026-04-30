@@ -12,15 +12,12 @@ import {
   getRole,
   getDocenteId,
   getUserId,
-  getUserNombre,
 } from '../roleConfig';
-import { pushNotification } from '../api/notificacion.api';
 
 export function ReasignacionesPage() {
   const role = getRole();
   const docenteId = getDocenteId();
   const userId = getUserId();
-  const userNombre = getUserNombre();
 
   const columns = [
     {
@@ -83,13 +80,6 @@ export function ReasignacionesPage() {
       ...row,
       estado,
       respondidaEn: now,
-    });
-
-    pushNotification({
-      title: 'Reasignación respondida',
-      message: `${userNombre} ${estado === 'ACEPTADA' ? 'aceptó' : 'rechazó'} la solicitud`,
-      role: 'docente',
-      userId: row.docenteSolicitanteId,
     });
 
     reload();

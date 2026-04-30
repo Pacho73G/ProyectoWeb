@@ -30,13 +30,20 @@ public class Notificacion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "turno_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "turno_id")
     private Turno turno;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "destinatario_id")
+    private Usuario destinatario;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo", nullable = false)
     private TipoNotificacion tipo;
+
+    @Column(name = "titulo", nullable = false)
+    private String titulo;
 
     @Column(name = "mensaje", nullable = false)
     private String mensaje;

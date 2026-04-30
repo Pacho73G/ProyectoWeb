@@ -2,14 +2,12 @@ import { EntityForm } from './EntityForm';
 import { createRecorrido, updateRecorrido } from '../../api/recorrido.api';
 import { getTurnos } from '../../api/turno.api';
 import { getDocentes } from '../../api/usuario.api';
-import { getRole, getDocenteId, getUserNombre } from '../../roleConfig';
+import { getRole, getDocenteId } from '../../roleConfig';
 import { recorridoEstados } from './options';
-import { pushNotification } from '../../api/notificacion.api';
 
 export function RecorridoForm({ recorrido, onSave, onCancel }) {
   const role = getRole();
   const docenteId = getDocenteId();
-  const userNombre = getUserNombre();
 
   const fields =
     role === 'docente'
@@ -106,22 +104,6 @@ export function RecorridoForm({ recorrido, onSave, onCancel }) {
     },
   };
 
-  const handleSave = () => {
-    pushNotification({
-      title: 'Nuevo recorrido',
-      message: `${userNombre} registró un recorrido.`,
-      role: 'coordinador',
-    });
-
-    pushNotification({
-      title: 'Nuevo recorrido',
-      message: `${userNombre} registró un recorrido.`,
-      role: 'administrador',
-    });
-
-    onSave();
-  };
-
   return (
     <EntityForm
       entity={role === 'docente' ? { docenteId, ...recorrido } : recorrido}
@@ -131,7 +113,7 @@ export function RecorridoForm({ recorrido, onSave, onCancel }) {
       loaders={loaders}
       createAction={createRecorrido}
       updateAction={updateRecorrido}
-      onSave={handleSave}
+      onSave={onSave}
       onCancel={onCancel}
     />
   );

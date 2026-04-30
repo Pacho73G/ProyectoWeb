@@ -1,16 +1,9 @@
 import { apiUrl, JSON_HEADERS } from './config';
 import { getJson, sendJson, sendVoid } from './http';
-import {
-  getRole,
-  getUserId,
-} from '../roleConfig';
 
 const BASE = apiUrl('/notificaciones');
 
-/* ===============================
-   API BACKEND ORIGINAL
-================================= */
-
+// CRUD general para administración y soporte.
 export const getNotificaciones = () =>
   getJson(BASE, 'Error al cargar notificaciones');
 
@@ -46,78 +39,23 @@ export const deleteNotificacion = (id) =>
     'Error al eliminar notificacion'
   );
 
-/* ===============================
-   SISTEMA LOCAL DE NOTIFICACIONES
-================================= */
+export const getUserNotifications = (userId) =>
+  getJson(
+    `${BASE}?userId=${userId}`,
+    'Error al cargar notificaciones del usuario'
+  );
 
-const KEY = 'app_notifications';
+// El badge del sidebar consume este conteo en lugar de recalcular en cliente.
+export const getUnreadCount = (userId) =>
+  getJson(
+    `${BASE}/unread-count?userId=${userId}`,
+    'Error al contar notificaciones'
+  );
 
-function readLocal() {
-  return JSON.parse(localStorage.getItem(KEY) || '[]');
-}
-
-function saveLocal(data) {
-  localStorage.setItem(KEY, JSON.stringify(data));
-}
-
-/* Crear nueva notificación */
-export function pushNotification(notification) {
-  const list = readLocal();
-
-  list.unshift({
-    id: Date.now(),
-    leida: false,
-    fecha: new Date().toLocaleString(),
-    ...notification,
-  });
-
-  saveLocal(list);
-}
-
-/* ==========================================
-   Obtener notificaciones del usuario actual
-========================================== */
-export function getUserNotifications() {
-  const role = getRole();
-  const userId = getUserId();
-
-  const list = readLocal();
-
-  return list.filter((n) => {
-    const sameRole = !n.role || n.role === role;
-    const sameUser =
-      n.userId === undefined ||
-      Number(n.userId) === Number(userId);
-
-    return sameRole && sameUser;
-  });
-}
-
-/* Cantidad no leídas */
-export function getUnreadCount() {
-  return getUserNotifications().filter((n) => !n.leida).length;
-}
-
-/* Marcar todas como leídas */
-export function markAllAsRead() {
-  const role = getRole();
-  const userId = getUserId();
-
-  const updated = readLocal().map((n) => {
-    const sameRole = !n.role || n.role === role;
-    const sameUser =
-      n.userId === undefined ||
-      Number(n.userId) === Number(userId);
-
-    if (sameRole && sameUser) {
-      return {
-        ...n,
-        leida: true,
-      };
-    }
-
-    return n;
-  });
-
-  saveLocal(updated);
-}
+// Al entrar al centro de notificaciones se marcan como leídas en backend.
+export const markAllAsRead = (userId) =>
+  sendVoid(
+    `${BASE}/mark-read?userId=${userId}`,
+    { method: 'PUT', headers: JSON_HEADERS },
+    'Error al marcar notificaciones como leidas'
+  );

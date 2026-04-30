@@ -1,11 +1,11 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useContext, useEffect, useRef } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { SidebarContext } from '../pages/SidebarContext';
 import { HouseLogo } from './HouseLogo';
 import { getUnreadCount } from '../api/notificacion.api';
-import { getDocenteId } from '../roleConfig';
 import {
   getRole,
+  getUserId,
   NAV_ITEMS,
   ROLE_INITIALS,
   ROLE_LABELS,
@@ -130,8 +130,8 @@ export function Sidebar() {
   const { collapsed, toggle } = useContext(SidebarContext);
 
   const role = getRole();
-  const docenteId = getDocenteId();
-  const unread = getUnreadCount(role, docenteId);
+  const userId = getUserId();
+  const [unread, setUnread] = useState(0);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -142,11 +142,40 @@ export function Sidebar() {
      BOTÓN MÓVIL / DESKTOP
   ========================= */
   useEffect(() => {
-  if (toggleButtonRef.current) {
-    const leftPosition = collapsed ? 15 : 290;
-    toggleButtonRef.current.style.left = `${leftPosition}px`;
-  }
-}, [collapsed]);
+    if (toggleButtonRef.current) {
+      const leftPosition = collapsed ? 15 : 290;
+      toggleButtonRef.current.style.left = `${leftPosition}px`;
+    }
+  }, [collapsed]);
+
+  useEffect(() => {
+    if (!userId) {
+      setUnread(0);
+      return undefined;
+    }
+
+    let active = true;
+
+    const loadUnread = () => {
+      getUnreadCount(userId)
+        .then((count) => {
+          if (active) setUnread(count);
+        })
+        .catch(() => {
+          if (active) setUnread(0);
+        });
+    };
+
+    loadUnread();
+    const intervalId = window.setInterval(loadUnread, 10000);
+    window.addEventListener('notifications:changed', loadUnread);
+
+    return () => {
+      active = false;
+      window.clearInterval(intervalId);
+      window.removeEventListener('notifications:changed', loadUnread);
+    };
+  }, [userId, location.pathname]);
 
   /* =========================
      LOGOUT

@@ -6,14 +6,11 @@ import { reasignacionEstados } from './options';
 import {
   getRole,
   getDocenteId,
-  getUserNombre,
 } from '../../roleConfig';
-import { pushNotification } from '../../api/notificacion.api';
 
 export function ReasignacionForm({ reasignacion, onSave, onCancel }) {
   const role = getRole();
   const docenteId = getDocenteId();
-  const userNombre = getUserNombre();
   const esDocente = role === 'docente';
 
   const fields = [
@@ -117,22 +114,6 @@ export function ReasignacionForm({ reasignacion, onSave, onCancel }) {
       }
     : reasignacion;
 
-  const handleSave = () => {
-    pushNotification({
-      title: 'Nueva reasignación',
-      message: `${userNombre} creó una solicitud de reasignación.`,
-      role: 'coordinador',
-    });
-
-    pushNotification({
-      title: 'Nueva reasignación',
-      message: `${userNombre} creó una solicitud de reasignación.`,
-      role: 'administrador',
-    });
-
-    onSave();
-  };
-
   return (
     <EntityForm
       entity={entityData}
@@ -142,7 +123,7 @@ export function ReasignacionForm({ reasignacion, onSave, onCancel }) {
       loaders={loaders}
       createAction={createReasignacion}
       updateAction={updateReasignacion}
-      onSave={handleSave}
+      onSave={onSave}
       onCancel={onCancel}
     />
   );

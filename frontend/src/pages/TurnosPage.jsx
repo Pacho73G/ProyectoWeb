@@ -5,8 +5,7 @@ import { CrudPage } from './CrudPage';
 import { getTurnos, deleteTurno, updateTurno } from '../api/turno.api';
 import { createCheckIn } from '../api/checkin.api';
 import { TurnoForm } from './forms/TurnoForm';
-import {getRole,getDocenteId,getUserId,getUserNombre} from '../roleConfig';
-import { pushNotification } from '../api/notificacion.api';
+import { getRole, getDocenteId } from '../roleConfig';
 
 export function TurnosPage() {
   const role = getRole();
@@ -85,27 +84,6 @@ const handleCheckIn = useCallback(async (turno, reload) => {
       cerradoEn: null,
     });
 
-    const nombre = getUserNombre();
-
-    pushNotification({
-      role: 'docente',
-      userId: getUserId(),
-      titulo: 'Check-in realizado',
-      mensaje: `Has iniciado el turno ${turno.franja}`,
-    });
-
-    pushNotification({
-      role: 'administrador',
-      titulo: 'Nuevo check-in',
-      mensaje: `${nombre} inició el turno ${turno.franja}`,
-    });
-
-    pushNotification({
-      role: 'coordinador',
-      titulo: 'Turno iniciado',
-      mensaje: `${nombre} inició el turno ${turno.franja}`,
-    });
-
     reload();
   } catch (e) {
     alert('Error al iniciar turno: ' + e.message);
@@ -130,27 +108,6 @@ const handleCheckIn = useCallback(async (turno, reload) => {
       estado: 'CERRADO',
       abiertoEn: turno.abiertoEn || null,
       cerradoEn: now,
-    });
-
-    const nombre = getUserNombre();
-
-    pushNotification({
-      role: 'docente',
-      userId: getUserId(),
-      titulo: 'Turno finalizado',
-      mensaje: `Has finalizado el turno ${turno.franja}`,
-    });
-
-    pushNotification({
-      role: 'administrador',
-      titulo: 'Turno finalizado',
-      mensaje: `${nombre} cerró el turno ${turno.franja}`,
-    });
-
-    pushNotification({
-      role: 'coordinador',
-      titulo: 'Turno cerrado',
-      mensaje: `${nombre} finalizó el turno ${turno.franja}`,
     });
 
     reload();

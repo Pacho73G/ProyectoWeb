@@ -24,7 +24,8 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 /**
- * Agrupa la lógica de escritura para la operación diaria: turnos, check-ins, incidentes y reasignaciones.
+ * Agrupa la lógica de escritura para la operación diaria: turnos, check-ins, incidentes,
+ * limpiezas, notificaciones y reasignaciones.
  */
 public class OperacionManagementService {
 
@@ -137,12 +138,14 @@ public class OperacionManagementService {
     private void validateLimpieza(RegistroLimpieza entity) {
         Long turnoId = entity.getTurno() != null ? entity.getTurno().getId() : null;
         if (turnoId == null) {
+            // Si la limpieza no depende de un turno, no aplica la regla de unicidad por turno.
             return;
         }
         boolean exists = entity.getId() == null
                 ? registroLimpiezaRepository.existsByTurnoId(turnoId)
                 : registroLimpiezaRepository.existsByTurnoIdAndIdNot(turnoId, entity.getId());
         if (exists) {
+            // Se conserva la restricción de máximo una limpieza asociada al mismo turno.
             throw new RecursoDuplicadoException("Ya existe un registro de limpieza para el turno seleccionado.");
         }
     }

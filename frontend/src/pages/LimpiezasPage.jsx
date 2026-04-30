@@ -1,8 +1,8 @@
 
 import { useCallback } from 'react';
+import { Badge } from '../components/Badge';
 import { CrudPage } from './CrudPage';
 import { getLimpiezas, deleteLimpieza } from '../api/limpieza.api';
-import { getTurnos } from '../api/turno.api';
 import { LimpiezaForm } from './forms/LimpiezaForm';
 import { getRole, getDocenteId } from '../roleConfig';
 
@@ -11,7 +11,21 @@ export function LimpiezasPage() {
   const docenteId = getDocenteId();
 
   const columns = [
-    { key: 'turnoFranja', label: 'Turno' },
+    {
+      key: 'docenteNombre',
+      label: 'Docente',
+      render: (row) => (
+        <div className="table-main">
+          <strong>{row.docenteNombre}</strong>
+          <small>{row.zonaNombre}</small>
+        </div>
+      ),
+    },
+    {
+      key: 'turnoFranja',
+      label: 'Contexto',
+      render: (row) => row.turnoFranja || 'Sin turno',
+    },
     {
       key: 'escala',
       label: 'Escala de limpieza',
@@ -37,23 +51,20 @@ export function LimpiezasPage() {
         );
       },
     },
+    {
+      key: 'completada',
+      label: 'Estado',
+      render: (row) => <Badge value={row.completada ? 'COMPLETADA' : 'PENDIENTE'} />,
+    },
     { key: 'observaciones', label: 'Observaciones' },
+    { key: 'asignadaEn', label: 'Asignada en' },
     { key: 'registradoEn', label: 'Registrado en' },
   ];
 
   const fetchDocente = useCallback(async () => {
-    const [limpiezas, turnos] = await Promise.all([
-      getLimpiezas(),
-      getTurnos(),
-    ]);
-
-    const misTurnos = new Set(
-      turnos
-        .filter((t) => Number(t.docenteId) === Number(docenteId))
-        .map((t) => t.id)
-    );
-
-    return limpiezas.filter((l) => misTurnos.has(l.turnoId));
+    const limpiezas = await getLimpiezas();
+    // El docente solo trabaja sobre tareas asignadas a su propio usuario.
+    return limpiezas.filter((l) => Number(l.docenteId) === Number(docenteId));
   }, [docenteId]);
 
   return (
@@ -61,13 +72,13 @@ export function LimpiezasPage() {
       title="Registros de limpieza"
       subtitle={
         role === 'docente'
-          ? 'Registra el estado de limpieza al cerrar tu turno.'
-          : 'Consulta general de limpiezas registradas.'
+          ? 'Consulta y completa las limpiezas que te asignaron.'
+          : 'Asigna limpiezas por zona, con o sin turno.'
       }
       toolbarNote={
         role === 'docente'
-          ? 'Solo verás registros de tus turnos.'
-          : 'Vista global de registros.'
+          ? 'Solo verás limpiezas asignadas a tu usuario.'
+          : 'Puedes asignar limpiezas independientes del turno.'
       }
       createLabel="Nuevo registro"
       fetchFn={role === 'docente' ? fetchDocente : getLimpiezas}
@@ -77,6 +88,9 @@ export function LimpiezasPage() {
       formPropName="limpieza"
       deleteMessage="¿Eliminar este registro?"
       resource="limpiezas"
+      editLabel={role === 'docente' ? 'Completar' : 'Editar'}
+      // Una limpieza ya completada deja de ser editable para docente.
+      canEditRow={(row) => role !== 'docente' || !row.completada}
     />
   );
 }

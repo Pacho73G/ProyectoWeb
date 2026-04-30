@@ -1,27 +1,48 @@
 import { EntityForm } from './EntityForm';
 import { createLimpieza, updateLimpieza } from '../../api/limpieza.api';
 import { getTurnos } from '../../api/turno.api';
+import { getDocentes } from '../../api/usuario.api';
+import { getZonas } from '../../api/zona.api';
 import { limpiezaEscalas } from './options';
 import {
   getRole,
   getDocenteId,
-  getUserNombre,
 } from '../../roleConfig';
-import { pushNotification } from '../../api/notificacion.api';
 
 export function LimpiezaForm({ limpieza, onSave, onCancel }) {
   const role = getRole();
   const docenteId = getDocenteId();
-  const userNombre = getUserNombre();
 
   const fields = [
+    ...(role !== 'docente'
+      ? [
+          {
+            name: 'docenteId',
+            label: 'Docente asignado',
+            type: 'select',
+            required: true,
+            loader: 'docentes',
+            optionLabel: (item) => item.nombre,
+          },
+        ]
+      : []),
+    {
+      name: 'zonaId',
+      label: 'Zona',
+      type: 'select',
+      required: true,
+      loader: 'zonas',
+      optionLabel: (item) => item.nombre,
+      full: true,
+    },
     {
       name: 'turnoId',
       label: 'Turno',
       type: 'select',
-      required: true,
       loader: 'turnos',
       optionLabel: (item) => `${item.franja} · ${item.fecha}`,
+      allowEmpty: true,
+      placeholder: 'Sin turno',
       full: true,
     },
     {
@@ -30,6 +51,12 @@ export function LimpiezaForm({ limpieza, onSave, onCancel }) {
       type: 'select',
       required: true,
       options: limpiezaEscalas,
+    },
+    {
+      name: 'asignadaEn',
+      label: 'Asignada en',
+      type: 'datetime-local',
+      required: true,
     },
     {
       name: 'registradoEn',
@@ -44,6 +71,12 @@ export function LimpiezaForm({ limpieza, onSave, onCancel }) {
       required: true,
       full: true,
     },
+    {
+      name: 'completada',
+      label: 'Completada',
+      type: 'checkbox',
+      full: true,
+    },
   ];
 
   const loaders = {
@@ -52,40 +85,47 @@ export function LimpiezaForm({ limpieza, onSave, onCancel }) {
         const data = await getTurnos();
 
         if (role === 'docente') {
+          // Si el docente completa una limpieza con turno, solo puede escoger entre sus turnos.
           return data.filter((t) => t.docenteId === docenteId);
         }
 
         return data;
       },
     },
+    docentes: {
+      fetcher: getDocentes,
+    },
+    zonas: {
+      fetcher: getZonas,
+    },
   };
 
-  const handleSave = () => {
-    pushNotification({
-      title: 'Nuevo registro de limpieza',
-      message: `${userNombre} registró una limpieza.`,
-      role: 'coordinador',
-    });
+  const entityData = role === 'docente'
+    ? { docenteId, completada: false, ...limpieza }
+    : limpieza;
 
-    pushNotification({
-      title: 'Nuevo registro de limpieza',
-      message: `${userNombre} registró una limpieza.`,
-      role: 'administrador',
-    });
+  const preparePayload = (payload) => {
+    if (role === 'docente') {
+      return {
+        ...payload,
+        // El docente nunca decide a quién pertenece la limpieza; eso llega fijado por sesión.
+        docenteId,
+      };
+    }
 
-    onSave();
+    return payload;
   };
 
   return (
     <EntityForm
-      entity={limpieza}
+      entity={entityData}
       title={limpieza ? 'Editar limpieza' : 'Nueva limpieza'}
-      description="Registro de limpieza."
+      description="Asignación o registro de limpieza por zona, con o sin turno."
       fields={fields}
       loaders={loaders}
-      createAction={createLimpieza}
-      updateAction={updateLimpieza}
-      onSave={handleSave}
+      createAction={(data) => createLimpieza(preparePayload(data))}
+      updateAction={(id, data) => updateLimpieza(id, preparePayload(data))}
+      onSave={onSave}
       onCancel={onCancel}
     />
   );

@@ -30,8 +30,8 @@ public class Incidente {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "turno_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "turno_id")
     private Turno turno;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

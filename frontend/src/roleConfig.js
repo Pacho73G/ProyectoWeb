@@ -62,6 +62,7 @@ export const NAV_ITEMS = {
     { to: '/configuraciones', label: 'Configuración', icon: 'settings' },
     { to: '/incidentes', label: 'Incidentes', icon: 'alert' },
     { to: '/reasignaciones', label: 'Reasignaciones', icon: 'refresh' },
+    { to: '/limpiezas', label: 'Limpieza', icon: 'sparkles' },
     { to: '/metricas', label: 'Métricas', icon: 'trophy' },
     { to: '/mapas-calor', label: 'Mapas de calor', icon: 'map' },
     { to: '/reportes', label: 'Reportes', icon: 'report' },
@@ -172,9 +173,12 @@ function allowsAdministrador(resource, action) {
     case 'reasignaciones':
     case 'recorridos':
     case 'checkins':
-    case 'limpiezas':
     case 'reportes':
       return readOnly(action);
+
+    case 'limpiezas':
+      // El admin administra la asignación completa de limpiezas.
+      return managed(action);
 
     default:
       return false;
@@ -192,8 +196,11 @@ function allowsDocente(resource, action) {
     case 'checkins':
     case 'incidentes':
     case 'recorridos':
-    case 'limpiezas':
       return createOnly(action);
+
+    case 'limpiezas':
+      // El docente no crea asignaciones; solo visualiza y completa las que le asignaron.
+      return ['view', 'edit', 'save'].includes(action);
 
     case 'reasignaciones':
       return ['view', 'create'].includes(action);

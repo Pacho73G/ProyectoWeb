@@ -27,6 +27,9 @@ export function CrudPage({
   resource,
   filterFn,
   extraRowActions,
+  editLabel = 'Editar',
+  canEditRow,
+  canDeleteRow,
 }) {
   const role = getRole();
 
@@ -118,6 +121,7 @@ export function CrudPage({
   const tableKey = useMemo(() => {
     if (!data || !Array.isArray(data)) return resource;
 
+    // La key fuerza refresco limpio de la tabla cuando cambia el dataset cargado.
     return `${resource}-${data.map((item) => item.id).join('-')}`;
   }, [data, resource]);
 
@@ -220,27 +224,33 @@ export function CrudPage({
 
                       {/* Editar */}
                       {canEdit && (
-                        <button
-                          className="secondary-button"
-                          onClick={() => {
-                            setEditando(row);
-                            setShowForm(true);
-                          }}
-                        >
-                          Editar
-                        </button>
+                        (!canEditRow || canEditRow(row)) && (
+                          // canEditRow permite reglas finas por fila, por ejemplo docente solo completa pendientes.
+                          <button
+                            className="secondary-button"
+                            onClick={() => {
+                              setEditando(row);
+                              setShowForm(true);
+                            }}
+                          >
+                            {editLabel}
+                          </button>
+                        )
                       )}
 
                       {/* Eliminar */}
                       {canDelete && (
-                        <button
-                          className="danger-button"
-                          onClick={() =>
-                            setEliminando(row.id)
-                          }
-                        >
-                          Eliminar
-                        </button>
+                        (!canDeleteRow || canDeleteRow(row)) && (
+                          // canDeleteRow permite deshabilitar borrado en filas que deben quedar inmutables.
+                          <button
+                            className="danger-button"
+                            onClick={() =>
+                              setEliminando(row.id)
+                            }
+                          >
+                            Eliminar
+                          </button>
+                        )
                       )}
                     </div>
                   )
