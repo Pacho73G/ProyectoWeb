@@ -26,7 +26,9 @@ public final class ApiDtos {
             String horaInicio,
             String horaFin,
             String franja,
-            String estado
+            String estado,
+            String abiertoEn,
+            String cerradoEn
     ) {}
 
     public record IncidenteDto(
@@ -194,6 +196,15 @@ public final class ApiDtos {
             Long totalReasignaciones,
             Long totalRecorridos,
             Long totalReconocimientos
+    ) {}
+
+    public record AuthResponseDto(
+            String token,
+            Long id,
+            String nombre,
+            String email,
+            String rol,
+            Boolean activo
     ) {}
 
     public record ApiErrorDto(String message) {}

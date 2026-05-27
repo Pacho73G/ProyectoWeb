@@ -22,7 +22,16 @@ export const ROLE_INITIALS = {
   administrador: 'AD',
 };
 
-export const USERS = {};
+const STORAGE_KEYS = {
+  token: 'authToken',
+  role: 'rol',
+  userId: 'userId',
+  userNombre: 'userNombre',
+  userEmail: 'userEmail',
+  docenteId: 'docenteId',
+  docenteNombre: 'docenteNombre',
+  docenteEmail: 'docenteEmail',
+};
 
 export const NAV_ITEMS = {
   coordinador: [
@@ -89,59 +98,100 @@ const RESOURCE_BY_PATH = {
 };
 
 
+function normalizeRole(role) {
+  return role ? role.trim().toLowerCase() : null;
+}
+
 export function getRole() {
-  return localStorage.getItem('rol') ?? 'coordinador';
+  return normalizeRole(localStorage.getItem(STORAGE_KEYS.role));
 }
 
-export function setRole(role) {
-  localStorage.setItem('rol', role);
+export function getAuthToken() {
+  return localStorage.getItem(STORAGE_KEYS.token) ?? null;
 }
 
-export function setUser(user) {
-  localStorage.setItem('userId', user.id);
-  localStorage.setItem('userNombre', user.nombre);
-  localStorage.setItem('userEmail', user.email);
+export function hasActiveSession() {
+  return Boolean(getAuthToken());
+}
 
-  // Siempre guardar docenteId si el usuario es docente
-  if (
-    user.rol?.toUpperCase() === 'DOCENTE' ||
-    getRole() === 'docente'
-  ) {
-    localStorage.setItem('docenteId', user.id);
-    localStorage.setItem('docenteNombre', user.nombre);
-    localStorage.setItem('docenteEmail', user.email);
+export function clearAuthSession() {
+  Object.values(STORAGE_KEYS).forEach((key) => localStorage.removeItem(key));
+}
+
+export function setAuthSession(authResponse, options = {}) {
+  const role = normalizeRole(authResponse?.rol);
+  const currentToken = getAuthToken();
+  const token = authResponse?.token ?? (options.preserveToken ? currentToken : null);
+
+  if (token) {
+    localStorage.setItem(STORAGE_KEYS.token, token);
   } else {
-    localStorage.removeItem('docenteId');
-    localStorage.removeItem('docenteNombre');
-    localStorage.removeItem('docenteEmail');
+    localStorage.removeItem(STORAGE_KEYS.token);
   }
+
+  localStorage.setItem(STORAGE_KEYS.role, role ?? '');
+  localStorage.setItem(STORAGE_KEYS.userId, String(authResponse.id));
+  localStorage.setItem(STORAGE_KEYS.userNombre, authResponse.nombre ?? '');
+  localStorage.setItem(STORAGE_KEYS.userEmail, authResponse.email ?? '');
+
+  if (role === 'docente') {
+    // En el modelo actual cada docente autenticado usa su propio id como filtro principal.
+    localStorage.setItem(STORAGE_KEYS.docenteId, String(authResponse.id));
+    localStorage.setItem(STORAGE_KEYS.docenteNombre, authResponse.nombre ?? '');
+    localStorage.setItem(STORAGE_KEYS.docenteEmail, authResponse.email ?? '');
+  } else {
+    localStorage.removeItem(STORAGE_KEYS.docenteId);
+    localStorage.removeItem(STORAGE_KEYS.docenteNombre);
+    localStorage.removeItem(STORAGE_KEYS.docenteEmail);
+  }
+
+  return getStoredSession();
+}
+
+export function getStoredSession() {
+  const role = getRole();
+  const token = getAuthToken();
+  const userId = getUserId();
+
+  if (!token || !role || !userId) {
+    return null;
+  }
+
+  return {
+    token,
+    role,
+    id: userId,
+    nombre: getUserNombre(),
+    email: getUserEmail(),
+    docenteId: getDocenteId(),
+  };
 }
 
 export function getUserId() {
-  const raw = localStorage.getItem('userId');
+  const raw = localStorage.getItem(STORAGE_KEYS.userId);
   return raw ? Number(raw) : null;
 }
 
 export function getUserNombre() {
-  return localStorage.getItem('userNombre') ?? null;
+  return localStorage.getItem(STORAGE_KEYS.userNombre) ?? null;
 }
 
 export function getUserEmail() {
-  return localStorage.getItem('userEmail') ?? null;
+  return localStorage.getItem(STORAGE_KEYS.userEmail) ?? null;
 }
 
 
 export function getDocenteId() {
-  const raw = localStorage.getItem('docenteId');
+  const raw = localStorage.getItem(STORAGE_KEYS.docenteId);
   return raw ? Number(raw) : null;
 }
 
 export function getDocenteNombre() {
-  return localStorage.getItem('docenteNombre') ?? null;
+  return localStorage.getItem(STORAGE_KEYS.docenteNombre) ?? null;
 }
 
 export function getDocenteEmail() {
-  return localStorage.getItem('docenteEmail') ?? null;
+  return localStorage.getItem(STORAGE_KEYS.docenteEmail) ?? null;
 }
 
 function managed(action) {

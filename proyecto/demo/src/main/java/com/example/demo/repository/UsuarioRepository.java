@@ -8,6 +8,8 @@ import com.example.demo.model.Usuario;
 
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
+    java.util.Optional<Usuario> findByEmailIgnoreCase(String email);
+
     boolean existsByEmailIgnoreCase(String email);
 
     boolean existsByEmailIgnoreCaseAndIdNot(String email, Long id);

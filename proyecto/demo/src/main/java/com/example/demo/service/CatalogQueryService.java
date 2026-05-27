@@ -1,6 +1,7 @@
 /* Archivo documentado: Servicio de consulta del sistema. Reúne lecturas y búsquedas reutilizadas por controladores, seed y flujos del dominio. */
 package com.example.demo.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -80,7 +81,17 @@ public class CatalogQueryService {
     public ConfiguracionSistema configuracion(Long id) { return configuracionSistemaRepository.findById(id).orElseThrow(() -> notFound("La configuración solicitada no existe.")); }
     public List<Zona> zonas() { return zonaRepository.findAll(); }
     public Zona zona(Long id) { return zonaRepository.findById(id).orElseThrow(() -> invalidRelation("La zona seleccionada no es válida.")); }
+
+    /** Todos los turnos — usado por administrador y coordinador. */
     public List<Turno> turnos() { return turnoRepository.findAll(); }
+
+    /**
+     * Solo los turnos cuya fecha coincide con hoy — usado por el endpoint
+     * {@code GET /api/turnos/hoy} que consume el docente.
+     * El docente únicamente puede ver e interactuar con los turnos del día actual.
+     */
+    public List<Turno> turnosDelDia() { return turnoRepository.findByFecha(LocalDate.now()); }
+
     public Turno turno(Long id) { return turnoRepository.findById(id).orElseThrow(() -> invalidRelation("El turno seleccionado no es válido.")); }
     public List<CheckIn> checkIns() { return checkInRepository.findAll(); }
     public CheckIn checkIn(Long id) { return checkInRepository.findById(id).orElseThrow(() -> notFound("El check-in solicitado no existe.")); }

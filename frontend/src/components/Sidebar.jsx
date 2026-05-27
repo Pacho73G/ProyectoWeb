@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useContext, useEffect, useRef, useState } from 'react';
 import { SidebarContext } from '../pages/SidebarContext';
+import { useAuth } from '../auth/AuthContext';
 import { HouseLogo } from './HouseLogo';
 import { getUnreadCount } from '../api/notificacion.api';
 import {
@@ -128,6 +129,7 @@ function NavIcon({ type }) {
 ========================= */
 export function Sidebar() {
   const { collapsed, toggle } = useContext(SidebarContext);
+  const { logout } = useAuth();
 
   const role = getRole();
   const userId = getUserId();
@@ -181,7 +183,8 @@ export function Sidebar() {
      LOGOUT
   ========================= */
   const handleLogout = () => {
-    localStorage.clear();
+    // El cierre de sesión limpia token y datos derivados del usuario autenticado.
+    logout();
     navigate('/');
   };
 

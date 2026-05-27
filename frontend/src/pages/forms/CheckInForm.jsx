@@ -126,9 +126,18 @@ export function CheckInForm({ checkin, onSave, onCancel }) {
         turnos: {
           fetcher: async () => {
             const data = await getTurnos();
+            const now = new Date();
+            // Solo mostrar turnos activos: que ya abrieron, no estén cerrados
+            // y no hayan superado su hora de cierre.
+            const activos = data.filter((t) => {
+              if (t.estado === 'CERRADO') return false;
+              if (t.abiertoEn && new Date(t.abiertoEn) > now) return false;
+              if (t.cerradoEn && new Date(t.cerradoEn) <= now) return false;
+              return true;
+            });
             return role === 'docente'
-              ? data.filter((t) => t.docenteId === docenteId)
-              : data;
+              ? activos.filter((t) => t.docenteId === docenteId)
+              : activos;
           },
         },
         docentes: {
@@ -141,7 +150,11 @@ export function CheckInForm({ checkin, onSave, onCancel }) {
         },
         zonas: { fetcher: getZonas },
       }}
-      createAction={createCheckIn}
+      createAction={
+        role === 'docente'
+          ? (data) => createCheckIn({ ...data, docenteId })
+          : createCheckIn
+      }
       updateAction={updateCheckIn}
       onSave={onSave}
       onCancel={onCancel}

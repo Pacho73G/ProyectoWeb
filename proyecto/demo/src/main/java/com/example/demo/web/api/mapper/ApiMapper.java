@@ -89,7 +89,9 @@ public final class ApiMapper {
                 format(entity.getHoraInicio()),
                 format(entity.getHoraFin()),
                 entity.getFranja(),
-                enumName(entity.getEstado())
+                enumName(entity.getEstado()),
+                entity.getAbiertoEn() != null ? entity.getAbiertoEn().format(DATE_TIME) : null,
+                entity.getCerradoEn() != null ? entity.getCerradoEn().format(DATE_TIME) : null
         );
     }
 

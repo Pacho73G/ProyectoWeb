@@ -1,7 +1,8 @@
 /* Dashboard corregido: dinámico por docente + limpio + sin duplicaciones */
 
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../auth/AuthContext';
 
 import { getDocentes } from '../api/usuario.api';
 import { getTurnos } from '../api/turno.api';
@@ -11,7 +12,7 @@ import { getRecorridos } from '../api/recorrido.api';
 import { getReconocimientos } from '../api/reconocimiento.api';
 
 import { Spinner } from '../components/Spinner';
-import { getRole, ROLE_VIEW_LABELS } from '../roleConfig';
+import { getDocenteId, getRole, ROLE_VIEW_LABELS } from '../roleConfig';
 
 /* ================= CONFIG ================= */
 
@@ -46,7 +47,9 @@ const DASHBOARD_CONFIG = {
 
 export function Dashboard() {
   const role = getRole();
-  const docenteId = localStorage.getItem('docenteId');
+  const docenteId = getDocenteId();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
   const [counts, setCounts] = useState({
     docentes: 0,
@@ -91,9 +94,23 @@ export function Dashboard() {
             ? data.filter((x) => String(x.docenteId) === String(docenteId))
             : data;
 
+        // Turnos visibles para el docente: igual que TurnosPage, solo los que
+        // ya alcanzaron su abiertoEn y no están cerrados.
+        const now = new Date();
+        const filtroTurnosDocente = (data) => {
+          if (role !== 'docente') return data;
+          return data.filter((t) => {
+            if (String(t.docenteId) !== String(docenteId)) return false;
+            if (t.abiertoEn && new Date(t.abiertoEn) > now) return false;
+            if (t.estado === 'CERRADO') return false;
+            if (t.cerradoEn && new Date(t.cerradoEn) <= now) return false;
+            return true;
+          });
+        };
+
         setCounts({
           docentes: docentes.filter((d) => d.activo).length,
-          turnos: filtroDocente(turnos).length,
+          turnos: filtroTurnosDocente(turnos).length,
           incidentes: filtroDocente(incidentes).length,
           reasignaciones: filtroDocente(reasignaciones).length,
           recorridos: filtroDocente(recorridos).length,
@@ -129,9 +146,12 @@ export function Dashboard() {
         </div>
 
         <div className="topbar-actions">
-          <Link className="ghost-button" to="/">
+          <button
+            className="ghost-button"
+            onClick={() => { logout(); navigate('/'); }}
+          >
             Volver al acceso
-          </Link>
+          </button>
         </div>
       </div>
 

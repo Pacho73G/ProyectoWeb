@@ -1,9 +1,7 @@
-
 import { useCallback } from 'react';
 import { Badge } from '../components/Badge';
 import { CrudPage } from './CrudPage';
-import { getTurnos, deleteTurno, updateTurno } from '../api/turno.api';
-import { createCheckIn } from '../api/checkin.api';
+import { getTurnos, getTurnosHoy, deleteTurno, updateTurno } from '../api/turno.api';
 import { TurnoForm } from './forms/TurnoForm';
 import { getRole, getDocenteId } from '../roleConfig';
 
@@ -52,69 +50,51 @@ export function TurnosPage() {
     },
   ];
 
+  // El docente usa GET /turnos/hoy y filtra por su ID para ver solo sus turnos de hoy.
+  // El admin y coordinador usan GET /turnos para ver toda la programación.
+  const fetchFn = role === 'docente' ? getTurnosHoy : getTurnos;
+
   const filterFn = useCallback(
-    (data) =>
-      docenteId ? data.filter((t) => t.docenteId === docenteId) : data,
-    [docenteId]
+      (data) => {
+        if (!docenteId) return data;
+        const now = new Date();
+        return data.filter((t) => {
+          if (t.docenteId !== docenteId) return false;
+          // Ocultar si aún no llegó la hora de apertura definida por el admin.
+          if (t.abiertoEn && new Date(t.abiertoEn) > now) return false;
+          // Ocultar si ya pasó la hora de cierre o el turno ya está cerrado.
+          if (t.estado === 'CERRADO') return false;
+          if (t.cerradoEn && new Date(t.cerradoEn) <= now) return false;
+          return true;
+        });
+      },
+      [docenteId]
   );
 
-const handleCheckIn = useCallback(async (turno, reload) => {
-  const now = new Date().toISOString().slice(0, 16);
-
-  try {
-    await createCheckIn({
-      turnoId: turno.id,
-      docenteId: turno.docenteId,
-      zonaId: turno.zonaId,
-      timestamp: now,
-      metodo: 'PIN',
-      evidencia: 'CHECK_IN_DOCENTE',
-      valido: true,
-    });
-
-    await updateTurno(turno.id, {
-      docenteId: turno.docenteId,
-      zonaId: turno.zonaId,
-      fecha: turno.fecha,
-      horaInicio: turno.horaInicio,
-      horaFin: turno.horaFin,
-      franja: turno.franja,
-      estado: 'EN_CURSO',
-      abiertoEn: now,
-      cerradoEn: null,
-    });
-
-    reload();
-  } catch (e) {
-    alert('Error al iniciar turno: ' + e.message);
-  }
-}, []);
-
   /* ======================
-     CHECK-OUT CORREGIDO
+     INICIAR TURNO (PENDIENTE → EN_CURSO)
+     Solo cambia el estado; el check-in se registra por separado desde el menú Check-ins.
   ====================== */
 
-  const handleCheckOut = useCallback(async (turno, reload) => {
-  const now = new Date().toISOString().slice(0, 16);
-
-  try {
-    await updateTurno(turno.id, {
-      docenteId: turno.docenteId,
-      zonaId: turno.zonaId,
-      fecha: turno.fecha,
-      horaInicio: turno.horaInicio,
-      horaFin: turno.horaFin,
-      franja: turno.franja,
-      estado: 'CERRADO',
-      abiertoEn: turno.abiertoEn || null,
-      cerradoEn: now,
-    });
-
-    reload();
-  } catch (e) {
-    alert('Error al finalizar turno: ' + e.message);
-  }
-}, []);
+  const handleIniciarTurno = useCallback(async (turno, reload) => {
+    try {
+      await updateTurno(turno.id, {
+        docenteId: turno.docenteId,
+        zonaId: turno.zonaId,
+        fecha: turno.fecha,
+        horaInicio: turno.horaInicio,
+        horaFin: turno.horaFin,
+        franja: turno.franja,
+        estado: 'EN_CURSO',
+        // Se preservan las fechas que puso el admin; no se sobreescriben al iniciar.
+        abiertoEn: turno.abiertoEn ?? null,
+        cerradoEn: turno.cerradoEn ?? null,
+      });
+      reload();
+    } catch (e) {
+      alert('Error al iniciar turno: ' + e.message);
+    }
+  }, []);
 
   /* ======================
      ACCIONES EXTRA
@@ -124,21 +104,12 @@ const handleCheckIn = useCallback(async (turno, reload) => {
     role === 'docente'
       ? (row, reload) => (
           <div style={{ display: 'flex', gap: '8px' }}>
-            {row.estado === 'PENDIENTE' && (
+            {(row.estado === 'PENDIENTE' || row.estado === 'SIN_COBERTURA') && (
               <button
                 className="action-button"
-                onClick={() => handleCheckIn(row, reload)}
+                onClick={() => handleIniciarTurno(row, reload)}
               >
                 Iniciar turno
-              </button>
-            )}
-
-            {row.estado === 'EN_CURSO' && (
-              <button
-                className="action-button danger"
-                onClick={() => handleCheckOut(row, reload)}
-              >
-                Finalizar turno
               </button>
             )}
           </div>
@@ -156,25 +127,25 @@ const handleCheckIn = useCallback(async (turno, reload) => {
         role === 'administrador'
           ? 'Crea franjas personalizadas, asigna docente y zona, y deja visible el estado operativo.'
           : role === 'docente'
-          ? 'Tus turnos asignados. Inicia y finaliza desde aquí.'
+          ? 'Tus turnos asignados para hoy. Inicia y finaliza desde aquí.'
           : 'Consulta la franja, zona y estado de cada turno.'
       }
       introTitle={
         role === 'administrador'
           ? 'Programación de turnos'
           : role === 'docente'
-          ? 'Mis turnos'
+          ? 'Mis turnos de hoy'
           : 'Calendario operativo'
       }
       toolbarNote={
         role === 'administrador'
           ? 'Asignación de turnos y cobertura.'
           : role === 'docente'
-          ? 'Usa los botones para iniciar o finalizar tu turno.'
+          ? 'Usa los botones para iniciar tu turno. Registra el check-in desde el menú Check-ins.'
           : 'Consulta de turnos.'
       }
       createLabel="Nuevo turno"
-      fetchFn={getTurnos}
+      fetchFn={fetchFn}
       deleteFn={deleteTurno}
       filterFn={role === 'docente' ? filterFn : undefined}
       columns={columns}

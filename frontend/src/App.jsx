@@ -7,13 +7,13 @@ import {
   useLocation,
 } from 'react-router-dom';
 
+import { AuthProvider, useAuth } from './auth/AuthContext';
 import { Sidebar } from './components/Sidebar';
-import { SidebarProvider, useSidebar } from './pages/SidebarContext'; // 🔥 IMPORTANTE
+import { SidebarProvider } from './pages/SidebarContext';
 
 import { canAccessPath, getRole } from './roleConfig';
 
 import { Login } from './pages/Login';
-import { DocenteSelector } from './pages/DocenteSelector';
 import { Dashboard } from './pages/Dashboard';
 import { TurnosPage } from './pages/TurnosPage';
 import { ZonasPage } from './pages/ZonasPage';
@@ -57,15 +57,15 @@ function AppLayout() {
 /* ================= PROTECTED ================= */
 
 function ProtectedRoute({ children }) {
+  const { isAuthenticated, loading } = useAuth();
   const role = getRole();
   const location = useLocation();
-  const docenteId = localStorage.getItem('docenteId');
 
-  if (!role) return <Navigate to="/" replace />;
-
-  if (role === 'docente' && !docenteId) {
-    return <Navigate to="/docente-selector" replace />;
+  if (loading) {
+    return null;
   }
+
+  if (!isAuthenticated || !role) return <Navigate to="/" replace />;
 
   if (!canAccessPath(role, location.pathname)) {
     return <Navigate to="/dashboard" replace />;
@@ -74,38 +74,47 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
+function RootRedirect() {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return null;
+  }
+
+  return <Navigate to={isAuthenticated ? '/dashboard' : '/'} replace />;
+}
+
 /* ================= APP ================= */
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Login />} />
 
-        <Route path="/" element={<Login />} />
-        <Route path="/docente-selector" element={<DocenteSelector />} />
+          <Route element={<AppLayout />}>
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/turnos" element={<ProtectedRoute><TurnosPage /></ProtectedRoute>} />
+            <Route path="/zonas" element={<ProtectedRoute><ZonasPage /></ProtectedRoute>} />
+            <Route path="/incidentes" element={<ProtectedRoute><IncidentesPage /></ProtectedRoute>} />
+            <Route path="/checkins" element={<ProtectedRoute><CheckInsPage /></ProtectedRoute>} />
+            <Route path="/reasignaciones" element={<ProtectedRoute><ReasignacionesPage /></ProtectedRoute>} />
+            <Route path="/limpiezas" element={<ProtectedRoute><LimpiezasPage /></ProtectedRoute>} />
+            <Route path="/notificaciones" element={<ProtectedRoute><NotificacionesPage /></ProtectedRoute>} />
+            <Route path="/mapas-calor" element={<ProtectedRoute><MapasCalorPage /></ProtectedRoute>} />
+            <Route path="/metricas" element={<ProtectedRoute><MetricasPage /></ProtectedRoute>} />
+            <Route path="/reconocimientos" element={<ProtectedRoute><ReconocimientosPage /></ProtectedRoute>} />
+            <Route path="/recorridos" element={<ProtectedRoute><RecorridosPage /></ProtectedRoute>} />
+            <Route path="/checkpoints" element={<ProtectedRoute><CheckpointsPage /></ProtectedRoute>} />
+            <Route path="/usuarios" element={<ProtectedRoute><UsuariosPage /></ProtectedRoute>} />
+            <Route path="/configuraciones" element={<ProtectedRoute><ConfiguracionesPage /></ProtectedRoute>} />
+            <Route path="/reportes" element={<ProtectedRoute><ReportesPage /></ProtectedRoute>} />
+          </Route>
 
-        <Route element={<AppLayout />}>
-          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/turnos" element={<ProtectedRoute><TurnosPage /></ProtectedRoute>} />
-          <Route path="/zonas" element={<ProtectedRoute><ZonasPage /></ProtectedRoute>} />
-          <Route path="/incidentes" element={<ProtectedRoute><IncidentesPage /></ProtectedRoute>} />
-          <Route path="/checkins" element={<ProtectedRoute><CheckInsPage /></ProtectedRoute>} />
-          <Route path="/reasignaciones" element={<ProtectedRoute><ReasignacionesPage /></ProtectedRoute>} />
-          <Route path="/limpiezas" element={<ProtectedRoute><LimpiezasPage /></ProtectedRoute>} />
-          <Route path="/notificaciones" element={<ProtectedRoute><NotificacionesPage /></ProtectedRoute>} />
-          <Route path="/mapas-calor" element={<ProtectedRoute><MapasCalorPage /></ProtectedRoute>} />
-          <Route path="/metricas" element={<ProtectedRoute><MetricasPage /></ProtectedRoute>} />
-          <Route path="/reconocimientos" element={<ProtectedRoute><ReconocimientosPage /></ProtectedRoute>} />
-          <Route path="/recorridos" element={<ProtectedRoute><RecorridosPage /></ProtectedRoute>} />
-          <Route path="/checkpoints" element={<ProtectedRoute><CheckpointsPage /></ProtectedRoute>} />
-          <Route path="/usuarios" element={<ProtectedRoute><UsuariosPage /></ProtectedRoute>} />
-          <Route path="/configuraciones" element={<ProtectedRoute><ConfiguracionesPage /></ProtectedRoute>} />
-          <Route path="/reportes" element={<ProtectedRoute><ReportesPage /></ProtectedRoute>} />
-        </Route>
-
-        <Route path="*" element={<Navigate to="/" />} />
-
-      </Routes>
-    </BrowserRouter>
+          <Route path="*" element={<RootRedirect />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }

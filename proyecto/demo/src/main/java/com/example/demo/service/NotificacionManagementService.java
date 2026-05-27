@@ -63,13 +63,16 @@ public class NotificacionManagementService {
     }
 
     public void notificarAsignacionTurno(Turno turno) {
+        // evitarDuplicado=true: el scheduler puede llamar este método cada minuto
+        // sin generar notificaciones repetidas para el mismo turno.
         crearNotificacion(
                 turno,
                 turno.getDocente(),
                 TipoNotificacion.ASIGNACION_TURNO,
                 "Nuevo turno asignado",
                 "Se te asignó el turno " + turno.getFranja() + " para el " + turno.getFecha() + " en " + turno.getZona().getNombre() + ".",
-                0
+                0,
+                true
         );
     }
 

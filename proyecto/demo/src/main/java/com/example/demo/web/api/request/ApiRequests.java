@@ -159,4 +159,9 @@ public final class ApiRequests {
             Integer minutosRecordatorio1,
             Integer minutosRecordatorio2
     ) {}
+
+    public record LoginRequest(
+            String email,
+            String password
+    ) {}
 }

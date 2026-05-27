@@ -1,10 +1,10 @@
-
 import { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useApi } from '../hooks/useApi';
 import { Tabla } from '../components/Tabla';
 import { Modal } from '../components/Modal';
 import { Spinner } from '../components/Spinner';
+import { useAuth } from '../auth/AuthContext';
 import {
   allows,
   getRole,
@@ -32,6 +32,8 @@ export function CrudPage({
   canDeleteRow,
 }) {
   const role = getRole();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
   const canCreate = allows(role, resource, 'create');
   const canEdit = allows(role, resource, 'edit');
@@ -145,9 +147,12 @@ export function CrudPage({
         </div>
 
         <div className="topbar-actions">
-          <Link className="ghost-button" to="/">
+          <button
+            className="ghost-button"
+            onClick={() => { logout(); navigate('/'); }}
+          >
             Volver al acceso
-          </Link>
+          </button>
 
           {canCreate && !toolbarNote && (
             <button

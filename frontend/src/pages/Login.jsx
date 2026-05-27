@@ -1,50 +1,38 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HouseLogo } from '../components/HouseLogo';
-import { setRole, setUser } from '../roleConfig';
-import { getUsuarios } from '../api/usuario.api';
-
-function RoleIcon({ kind }) {
-  if (kind === 'docente') return <HouseLogo />;
-  if (kind === 'administrador') return <HouseLogo />;
-  return <HouseLogo />;
-}
+import { useAuth } from '../auth/AuthContext';
 
 export function Login() {
   const navigate = useNavigate();
+  const { login, isAuthenticated, loading } = useAuth();
 
-  const [selectedRole, setSelectedRole] = useState(null);
-  const [usuarios, setUsuarios] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    loadUsuarios();
-  }, []);
+    if (!loading && isAuthenticated) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, loading, navigate]);
 
-  async function loadUsuarios() {
+  async function handleSubmit(event) {
+    event.preventDefault();
+    setSubmitting(true);
+    setError(null);
+
     try {
-      setLoading(true);
-      const data = await getUsuarios();
-      setUsuarios(data.filter((u) => u.activo));
-    } catch (error) {
-      console.error(error);
+      // El frontend ya no simula roles: el backend autentica y devuelve el perfil real.
+      await login({ email, password });
+      navigate('/dashboard', { replace: true });
+    } catch (requestError) {
+      setError(requestError.message);
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   }
-
-  const handleSelectUser = (user) => {
-  localStorage.clear(); // limpia usuario anterior
-
-  setRole(selectedRole);
-  setUser(user);
-
-  navigate('/dashboard');
-};
-
-  const users = usuarios.filter(
-    (u) => u.rol?.toLowerCase() === selectedRole
-  );
 
   return (
     <div className="login-page">
@@ -58,67 +46,81 @@ export function Login() {
           <p>Colegio San José · Gestión de Supervisión Escolar</p>
         </div>
 
-        {!selectedRole ? (
-          <div className="role-selector">
-            <div className="section-heading">
-              <h2>Selecciona tu rol</h2>
-              <p>Elige cómo quieres acceder al sistema.</p>
-            </div>
-
-            <div className="role-grid">
-              <button className="role-card green" onClick={() => setSelectedRole('coordinador')}>
-                <div className="role-icon"><RoleIcon kind="coordinador" /></div>
-                <span>Coordinador</span>
-              </button>
-
-              <button className="role-card blue" onClick={() => setSelectedRole('docente')}>
-                <div className="role-icon"><RoleIcon kind="docente" /></div>
-                <span>Docente</span>
-              </button>
-
-              <button className="role-card purple" onClick={() => setSelectedRole('administrador')}>
-                <div className="role-icon"><RoleIcon kind="administrador" /></div>
-                <span>Administrador</span>
-              </button>
-            </div>
+        <div className="role-selector">
+          <div className="section-heading">
+            <h2>Ingreso institucional</h2>
+            <p>
+              Inicia sesión con tu correo y contraseña para entrar con el rol
+              asignado por el sistema.
+            </p>
           </div>
-        ) : (
-          <div className="role-selector">
-            <div className="section-heading">
-              <h2>Selecciona tu perfil</h2>
-            </div>
 
-            {loading ? (
-              <p>Cargando...</p>
-            ) : (
-              <div className="role-grid">
-                {users.map((user) => (
-                  <button
-                    key={user.id}
-                    className="role-card blue"
-                    onClick={() => handleSelectUser(user)}
-                  >
-                    <div className="role-icon">
-                      <RoleIcon kind={selectedRole} />
-                    </div>
+          {error && <div className="alert error">{error}</div>}
 
-                    <span>{user.nombre}</span>
-                    <small>{user.email}</small>
-                  </button>
-                ))}
+          <form onSubmit={handleSubmit}>
+            <div className="form-grid" style={{ maxWidth: '640px', margin: '0 auto' }}>
+              <div className="field full">
+                <label htmlFor="login-email">Correo institucional</label>
+                <input
+                  id="login-email"
+                  type="email"
+                  value={email}
+                  placeholder="nombre@colegio.edu"
+                  autoComplete="username"
+                  required
+                  onChange={(event) => setEmail(event.target.value)}
+                />
               </div>
-            )}
 
-            <div style={{ marginTop: '18px' }}>
+              <div className="field full">
+                <label htmlFor="login-password">Contraseña</label>
+                <input
+                  id="login-password"
+                  type="password"
+                  value={password}
+                  placeholder="Ingresa tu contraseña"
+                  autoComplete="current-password"
+                  required
+                  onChange={(event) => setPassword(event.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="form-actions" style={{ justifyContent: 'center', marginTop: '20px' }}>
               <button
-                className="ghost-button"
-                onClick={() => setSelectedRole(null)}
+                type="submit"
+                className="primary-button"
+                disabled={submitting}
               >
-                Volver
+                {submitting ? 'Ingresando...' : 'Iniciar sesión'}
               </button>
             </div>
+          </form>
+
+          <div className="panel" style={{ maxWidth: '640px', margin: '28px auto 0' }}>
+            <div className="panel-intro">
+              <h3>Credenciales semilla</h3>
+              <p>
+                Mientras sigues sin módulo de cambio de contraseña, puedes usar
+                las credenciales cargadas por el batch inicial.
+              </p>
+            </div>
+            <div className="stack-list">
+              <div className="item-card">
+                <strong>Administrador</strong>
+                <span><code>laura.admin@colegio.edu</code> / <code>hash-admin</code></span>
+              </div>
+              <div className="item-card">
+                <strong>Coordinador</strong>
+                <span><code>ana.coord@colegio.edu</code> / <code>hash-coord</code></span>
+              </div>
+              <div className="item-card">
+                <strong>Docente</strong>
+                <span><code>carlos@colegio.edu</code> / <code>hash-docente</code></span>
+              </div>
+            </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

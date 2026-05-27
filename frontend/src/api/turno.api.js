@@ -5,6 +5,8 @@ import { getJson, sendJson, sendVoid } from './http';
 const BASE = apiUrl('/turnos');
 
 export const getTurnos = () => getJson(BASE, 'Error al cargar turnos');
+// Solo los turnos de hoy; el perfil docente consume este endpoint en lugar del listado global.
+export const getTurnosHoy = () => getJson(`${BASE}/hoy`, 'Error al cargar turnos de hoy');
 export const getTurno = (id) => getJson(`${BASE}/${id}`, 'Turno no encontrado');
 export const createTurno = (data) => sendJson(BASE, { method: 'POST', headers: JSON_HEADERS, body: JSON.stringify(data) }, 'Error al crear turno');
 export const updateTurno = (id, data) => sendJson(`${BASE}/${id}`, { method: 'PUT', headers: JSON_HEADERS, body: JSON.stringify(data) }, 'Error al actualizar turno');

@@ -2,6 +2,7 @@
 package com.example.demo.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.example.demo.exception.RecursoDuplicadoException;
 import com.example.demo.exception.RecursoNoEncontradoException;
@@ -29,9 +30,11 @@ public class UsuarioManagementService {
     private final CoordinadorRepository coordinadorRepository;
     private final AdministradorRepository administradorRepository;
     private final ConfiguracionSistemaRepository configuracionSistemaRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public Usuario guardar(Usuario entity) {
         validateUsuario(entity);
+        encodePasswordIfNeeded(entity);
         return usuarioRepository.save(entity);
     }
 
@@ -42,6 +45,7 @@ public class UsuarioManagementService {
 
     public Docente guardar(Docente entity) {
         validateUsuario(entity);
+        encodePasswordIfNeeded(entity);
         return docenteRepository.save(entity);
     }
 
@@ -52,6 +56,7 @@ public class UsuarioManagementService {
 
     public Coordinador guardar(Coordinador entity) {
         validateUsuario(entity);
+        encodePasswordIfNeeded(entity);
         return coordinadorRepository.save(entity);
     }
 
@@ -62,6 +67,7 @@ public class UsuarioManagementService {
 
     public Administrador guardar(Administrador entity) {
         validateUsuario(entity);
+        encodePasswordIfNeeded(entity);
         return administradorRepository.save(entity);
     }
 
@@ -87,6 +93,20 @@ public class UsuarioManagementService {
                 : usuarioRepository.existsByEmailIgnoreCaseAndIdNot(entity.getEmail(), entity.getId());
         if (exists) {
             throw new RecursoDuplicadoException("El correo del usuario ya existe.");
+        }
+    }
+
+    private void encodePasswordIfNeeded(Usuario entity) {
+        String rawOrEncodedPassword = entity.getPasswordHash();
+        if (rawOrEncodedPassword == null || rawOrEncodedPassword.isBlank()) {
+            return;
+        }
+        // Se mantiene el nombre histórico "passwordHash" en DTOs por compatibilidad,
+        // pero desde ahora el frontend envía la contraseña en texto plano y aquí se hashea.
+        if (!rawOrEncodedPassword.startsWith("$2a$")
+                && !rawOrEncodedPassword.startsWith("$2b$")
+                && !rawOrEncodedPassword.startsWith("$2y$")) {
+            entity.setPasswordHash(passwordEncoder.encode(rawOrEncodedPassword));
         }
     }
 

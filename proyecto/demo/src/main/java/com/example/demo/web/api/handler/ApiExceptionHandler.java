@@ -5,6 +5,8 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -12,6 +14,7 @@ import com.example.demo.exception.RecursoDuplicadoException;
 import com.example.demo.exception.RecursoNoEncontradoException;
 import com.example.demo.exception.RelacionInvalidaException;
 import com.example.demo.web.api.controller.AnaliticaApiController;
+import com.example.demo.web.api.controller.AuthApiController;
 import com.example.demo.web.api.controller.OperacionApiController;
 import com.example.demo.web.api.controller.ReporteApiController;
 import com.example.demo.web.api.controller.UsuarioApiController;
@@ -22,6 +25,7 @@ import com.example.demo.web.api.dto.ApiDtos.ApiErrorDto;
         ZonaTurnoApiController.class,
         OperacionApiController.class,
         AnaliticaApiController.class,
+        AuthApiController.class,
         UsuarioApiController.class,
         ReporteApiController.class
 })
@@ -41,5 +45,10 @@ public class ApiExceptionHandler {
     @ExceptionHandler(RecursoDuplicadoException.class)
     public ResponseEntity<ApiErrorDto> handleDuplicate(RecursoDuplicadoException exception) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiErrorDto(exception.getMessage()));
+    }
+
+    @ExceptionHandler({BadCredentialsException.class, UsernameNotFoundException.class})
+    public ResponseEntity<ApiErrorDto> handleBadCredentials(RuntimeException exception) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiErrorDto("Credenciales inválidas."));
     }
 }

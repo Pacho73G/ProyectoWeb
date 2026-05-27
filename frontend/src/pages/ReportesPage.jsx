@@ -1,12 +1,15 @@
 /* Archivo documentado: Pantalla principal de la SPA. Consume la API y presenta una vista funcional del módulo correspondiente. */
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Spinner } from '../components/Spinner';
 import { getReporteResumen } from '../api/reporte.api';
 import { getRole, ROLE_VIEW_LABELS } from '../roleConfig';
+import { useAuth } from '../auth/AuthContext';
 
 export function ReportesPage() {
   const role = getRole();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
 
@@ -35,7 +38,7 @@ export function ReportesPage() {
           <p className="muted role-label">{ROLE_VIEW_LABELS[role]}</p>
         </div>
         <div className="topbar-actions">
-          <Link className="ghost-button" to="/">Volver al acceso</Link>
+          <button className="ghost-button" onClick={() => { logout(); navigate('/'); }}>Volver al acceso</button>
         </div>
       </div>
 
